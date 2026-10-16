@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 
 const listeners = new Set()
 const subscribe = (l) => (listeners.add(l), () => listeners.delete(l))
-export const getTheme = () => document.documentElement.dataset.theme || 'light'
+export const getTheme = () => document.documentElement.dataset.theme || 'dark'
 
 function apply(t) {
   document.documentElement.dataset.theme = t
@@ -32,5 +32,5 @@ export function setTheme(t, origin) {
 export const toggleTheme = (origin) => setTheme(getTheme() === 'dark' ? 'light' : 'dark', origin)
 
 export function useTheme() {
-  return useSyncExternalStore(subscribe, getTheme, () => 'light')
+  return useSyncExternalStore(subscribe, getTheme, () => 'dark')
 }
