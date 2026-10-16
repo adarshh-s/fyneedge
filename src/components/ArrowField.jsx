@@ -40,7 +40,7 @@ const angleLerp = (a, b, t) => {
   return a + d * t
 }
 
-export default function ArrowField({ progressRef, theme = 'light' }) {
+export default function ArrowField({ progressRef, theme = 'light', fullBleed = false }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -67,10 +67,10 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
     let lastGlint = 0
 
     const resize = () => {
-      const r = canvas.getBoundingClientRect()
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      w = r.width
-      h = r.height
+      // layout size, unaffected by CSS transforms on ancestors
+      w = canvas.clientWidth
+      h = canvas.clientHeight
       canvas.width = Math.round(w * dpr)
       canvas.height = Math.round(h * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -172,7 +172,7 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
       const colorPaths = WAVE_COLORS.map(() => Array.from({ length: LIME_BUCKETS }, () => new Path2D()))
 
       const cx = w / 2
-      const cy = h * 0.47
+      const cy = h * (fullBleed ? 0.42 : 0.47)
       const scrollAngle = BASE + (-Math.PI / 2 - BASE) * smooth(0, 0.8, p)
       const fadeAll = 1 - smooth(0.2, 1, p)
       const lane = cell * 0.75
@@ -180,9 +180,9 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
       for (let r = 0; r < rows; r++) {
         const y = r * cell + cell / 2
         const yn = y / h
-        const vert = smooth(-0.05, 0.35, yn) * (1 - smooth(0.62, 0.98, yn))
+        const vert = fullBleed ? smooth(-0.1, 0.12, yn) * (1 - smooth(0.88, 1.05, yn)) : smooth(-0.05, 0.35, yn) * (1 - smooth(0.62, 0.98, yn))
         if (vert <= 0.01) continue
-        const family = yn > 0.62 ? 1 : 0
+        const family = !fullBleed && yn > 0.62 ? 1 : 0
         for (let c = 0; c < cols; c++) {
           const x = c * cell + cell / 2
           const i = r * cols + c
@@ -320,8 +320,8 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
     const host = canvas.parentElement.parentElement
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect()
-      mouse.x = e.clientX - r.left
-      mouse.y = e.clientY - r.top
+      mouse.x = ((e.clientX - r.left) * w) / r.width
+      mouse.y = ((e.clientY - r.top) * h) / r.height
       mouse.active = true
       mouse.last = performance.now() / 1000
     }
@@ -333,7 +333,7 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
       const active = clicks.filter((c) => now - c.t < CHARGE + WAVE_LIFE)
       // a fresh click starts at lime; clicks during a live wave take the next colour
       const c = active.length ? (active[active.length - 1].c + 1) % WAVE_COLORS.length : 0
-      clicks.push({ x: e.clientX - r.left, y: e.clientY - r.top, t: now, c })
+      clicks.push({ x: ((e.clientX - r.left) * w) / r.width, y: ((e.clientY - r.top) * h) / r.height, t: now, c })
       if (clicks.length > 3) clicks.shift()
       if (reduce) draw(performance.now())
     }
@@ -359,7 +359,7 @@ export default function ArrowField({ progressRef, theme = 'light' }) {
       host.removeEventListener('pointerleave', onLeave)
       host.removeEventListener('pointerdown', onDown)
     }
-  }, [theme, progressRef])
+  }, [theme, progressRef, fullBleed])
 
   return <canvas ref={canvasRef} className="ghero__canvas" aria-hidden="true" />
 }

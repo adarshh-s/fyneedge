@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Lenis from 'lenis'
 import { lenisRef } from './lenis.js'
 import CommandPalette from './components/CommandPalette.jsx'
-import { Cursor, ScrollProgress } from './components/interactions.jsx'
+import { Cursor, ScrollProgress, useSpotlight } from './components/interactions.jsx'
 import Nav from './components/Nav.jsx'
 import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
@@ -51,6 +51,7 @@ function ScrollReset() {
 
 export default function App() {
   useSmoothScroll()
+  useSpotlight()
   return (
     <>
       <ScrollReset />

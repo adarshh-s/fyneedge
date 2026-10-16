@@ -8,7 +8,7 @@ export const getTheme = () => document.documentElement.dataset.theme || 'dark'
 function apply(t) {
   document.documentElement.dataset.theme = t
   try {
-    localStorage.setItem('theme', t)
+    localStorage.setItem('fe-theme', t)
   } catch {}
   flushSync(() => listeners.forEach((l) => l()))
 }

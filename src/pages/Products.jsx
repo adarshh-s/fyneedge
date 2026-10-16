@@ -53,7 +53,7 @@ export default function Products() {
         </div>
         <div className="prod__why">
           {OMNI_WHY.map(([t, d], i) => (
-            <Reveal tilt className="prod__whyitem" key={t} delay={i * 0.08}>
+            <Reveal tilt className="spot prod__whyitem" key={t} delay={i * 0.08}>
               <span>0{i + 1}</span>
               <b>{t}</b>
               <p>{d}</p>

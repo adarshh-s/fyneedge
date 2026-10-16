@@ -61,7 +61,7 @@ export default function Integrations() {
           {TABS[tab].map(([name, desc, color], i) => (
             <motion.article
               key={tab + name}
-              className="integ__card"
+              className="spot integ__card"
               layout
               initial={{ opacity: 0, y: 24, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

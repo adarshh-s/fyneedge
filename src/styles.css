@@ -46,6 +46,8 @@
   --hero-bg: #1d6cf2;
   --grid-bg: linear-gradient(180deg, #06184d 0%, #0b2f8f 20%, #1f5ff0 46%, #5b97ff 66%, #c9defe 84%, var(--bg) 100%);
   --halo: rgba(140, 185, 255, 0.55);
+  --cta-bg: linear-gradient(180deg, #06184d 0%, #0b2f8f 40%, #1f5ff0 80%, #3f7dff 100%);
+  --spot: #2f8ff2;
   --hero-glow: rgba(255, 255, 255, 0.4);
   --grain: 0.13;
   --glass: rgba(8, 52, 140, 0.32);
@@ -83,6 +85,8 @@
   --hero-bg: #0b1a4a;
   --grid-bg: linear-gradient(180deg, #020716 0%, #061a52 28%, #0d3aa8 52%, #0b2c78 74%, #07122c 88%, var(--bg) 100%);
   --halo: rgba(60, 120, 255, 0.4);
+  --cta-bg: linear-gradient(180deg, #020716 0%, #061a52 45%, #0d3aa8 100%);
+  --spot: #d7ff3e;
   --hero-glow: rgba(47, 143, 242, 0.35);
   --grain: 0.2;
   --glass: rgba(6, 12, 26, 0.45);
@@ -373,10 +377,7 @@ main {
 .marquee__track {
   display: flex;
   width: max-content;
-  animation: marquee linear infinite;
-}
-.marquee:hover .marquee__track {
-  animation-play-state: paused;
+  will-change: transform;
 }
 .marquee__group {
   display: flex;
@@ -2442,15 +2443,22 @@ main {
   text-align: center;
   margin-top: 20px;
 }
-.footer__word span {
+.footer__word > span {
   display: inline-block;
   font-size: 21vw;
   font-weight: 600;
   letter-spacing: -0.07em;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.05));
+}
+.fchar {
+  --f: 0;
+  display: inline-block;
+  font-weight: calc(600 + var(--f) * 200);
+  transform: translateY(calc(var(--f) * -0.07em));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lime) calc(var(--f) * 100%), rgba(255, 255, 255, 0.95)), rgba(255, 255, 255, 0.04));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  transition: font-weight 0.4s var(--ease), transform 0.4s var(--ease);
 }
 
 /* =========================================================
@@ -4199,4 +4207,200 @@ kbd {
     opacity: 1;
     transform: scale(1.06);
   }
+}
+
+
+/* =========================================================
+   GROWTH CHART — "How we work"
+   ========================================================= */
+.growth__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.growth__grid {
+  stroke: var(--border);
+  stroke-dasharray: 2 7;
+}
+.growth__track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+  stroke-dasharray: 5 9;
+}
+.growth__line,
+.growth__glow {
+  fill: none;
+  stroke: url(#growthGrad);
+  stroke-linecap: round;
+}
+.growth__line {
+  stroke-width: 4;
+}
+.growth__glow {
+  stroke-width: 14;
+  opacity: 0.4;
+  filter: url(#growthGlow);
+}
+.growth__node .dot {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 3;
+  transition: fill 0.4s, stroke 0.4s;
+}
+.growth__node .halo {
+  fill: var(--lime);
+  opacity: 0;
+  transform: scale(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.5s, transform 0.6s var(--ease);
+}
+.growth__node.on .dot {
+  fill: var(--lime);
+  stroke: var(--ink);
+}
+.growth__node.on .halo {
+  opacity: 0.3;
+  transform: scale(1);
+  animation: halo 2.4s ease-in-out infinite;
+}
+@keyframes halo {
+  50% {
+    opacity: 0.12;
+    transform: scale(1.35);
+  }
+}
+.growth__node text {
+  font-family: var(--mono);
+  font-size: 14px;
+  text-anchor: middle;
+  fill: var(--fg-3);
+  transition: fill 0.4s;
+}
+.growth__node.on text {
+  fill: var(--fg);
+}
+.growth__headbg {
+  fill: var(--ink);
+  stroke: var(--lime);
+  stroke-width: 2;
+}
+.growth__head path {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.growth__steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 36px;
+}
+.growth__step {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding-top: 18px;
+  border-top: 2px solid var(--border);
+  opacity: 0.35;
+  transform: translateY(14px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), border-color 0.6s;
+}
+.growth__step.on {
+  opacity: 1;
+  transform: none;
+  border-color: var(--lime);
+}
+.growth__step span {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sky-2);
+}
+.growth__step h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.growth__step p {
+  color: var(--fg-2);
+}
+@media (max-width: 900px) {
+  .growth__steps {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 32px;
+  }
+}
+@media (max-width: 560px) {
+  .growth__steps {
+    grid-template-columns: 1fr;
+  }
+  .growth__node text {
+    font-size: 26px;
+  }
+}
+
+/* =========================================================
+   CTA — arrow field
+   ========================================================= */
+.cta__box {
+  background: var(--cta-bg);
+}
+.cta__field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* =========================================================
+   SPOTLIGHT BORDER — follows the cursor around .spot cards
+   ========================================================= */
+.spot {
+  position: relative;
+}
+.spot::before,
+.spot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease);
+}
+.spot::before {
+  padding: 1.5px;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.spot::after {
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--spot) 12%, transparent), transparent 60%);
+}
+.spot:hover::before,
+.spot:hover::after {
+  opacity: 1;
+}
+.stack__card--sky,
+.stack__card--lime,
+.bento__card--sky,
+.bento__card--lime {
+  --spot: #ffffff;
+}
+@media (hover: none) {
+  .spot::before,
+  .spot::after {
+    display: none;
+  }
+}
+.why__item:hover {
+  --spot: var(--ink);
 }

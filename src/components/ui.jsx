@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useInView, useScroll, useTransform, animate } from 'framer-motion'
+import { motion, useAnimationFrame, useInView, useMotionValue, useScroll, useSpring, useTransform, useVelocity, animate } from 'framer-motion'
 import { SITE } from '../config.js'
 import { Scramble, useMagnetic, useTilt } from './interactions.jsx'
 
@@ -141,15 +141,37 @@ export function Counter({ to, suffix = '', prefix = '', duration = 1.6 }) {
   return <span ref={ref}>{prefix}0{suffix}</span>
 }
 
+/** Endless strip that speeds up, leans and reverses with scroll velocity */
 export function Marquee({ children, speed = 40, reverse, className = '' }) {
+  const track = useRef(null)
+  const x = useMotionValue(0)
+  const { scrollY } = useScroll()
+  const vel = useSpring(useVelocity(scrollY), { damping: 50, stiffness: 400 })
+  const skewX = useTransform(vel, [-2500, 0, 2500], [7, 0, -7], { clamp: true })
+  const dir = useRef(1)
+  const hover = useRef(false)
+  useAnimationFrame((_, delta) => {
+    const el = track.current
+    if (!el) return
+    const half = el.scrollWidth / 2
+    if (!half) return
+    const v = vel.get()
+    if (v < -5) dir.current = -1
+    else if (v > 5) dir.current = 1
+    const factor = (1 + Math.min(Math.abs(v) / 350, 6)) * (hover.current ? 0.25 : 1)
+    let nx = x.get() - (reverse ? -1 : 1) * dir.current * (half / speed) * factor * (Math.min(delta, 50) / 1000)
+    if (nx <= -half) nx += half
+    if (nx > 0) nx -= half
+    x.set(nx)
+  })
   return (
-    <div className={`marquee ${className}`}>
-      <div className="marquee__track" style={{ animationDuration: `${speed}s`, animationDirection: reverse ? 'reverse' : 'normal' }}>
+    <div className={`marquee ${className}`} onMouseEnter={() => (hover.current = true)} onMouseLeave={() => (hover.current = false)}>
+      <motion.div className="marquee__track" ref={track} style={{ x, skewX }}>
         <div className="marquee__group">{children}</div>
         <div className="marquee__group" aria-hidden="true">
           {children}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

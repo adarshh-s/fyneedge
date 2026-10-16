@@ -24,7 +24,7 @@ function Card({ s, i, n, progress }) {
   const V = VISUALS[s.id]
   return (
     <div className="stack__slot" style={{ top: `calc(90px + ${i * 22}px)` }}>
-      <motion.article className={`stack__card stack__card--${s.theme}`} style={{ scale }}>
+      <motion.article className={`spot stack__card stack__card--${s.theme}`} style={{ scale }}>
         <div className="stack__text">
           <span className="stack__num">
             {s.num} / {s.tag}

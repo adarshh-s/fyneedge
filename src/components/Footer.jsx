@@ -3,11 +3,14 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { SITE } from '../config.js'
 import { Logo } from './ui.jsx'
+import { useProximity } from './interactions.jsx'
 
 export default function Footer() {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] })
   const y = useTransform(scrollYProgress, [0, 1], ['60%', '0%'])
+  const word = useRef(null)
+  useProximity(word, '.fchar', 320)
 
   return (
     <footer className="footer" ref={ref}>
@@ -50,8 +53,14 @@ export default function Footer() {
           <a href="#">Terms</a>
         </span>
       </div>
-      <div className="footer__word" aria-hidden="true">
-        <motion.span style={{ y }}>{SITE.name}</motion.span>
+      <div className="footer__word" aria-hidden="true" ref={word}>
+        <motion.span style={{ y }}>
+          {SITE.name.split('').map((ch, i) => (
+            <span className="fchar" key={i}>
+              {ch}
+            </span>
+          ))}
+        </motion.span>
       </div>
     </footer>
   )

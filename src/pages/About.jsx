@@ -47,7 +47,7 @@ export default function About() {
         </div>
         <div className="values__grid">
           {VALUES.map(([t, d], i) => (
-            <Reveal tilt className="values__item" key={t} delay={i * 0.08}>
+            <Reveal tilt className="spot values__item" key={t} delay={i * 0.08}>
               <span>0{i + 1}</span>
               <h3>{t}</h3>
               <p>{d}</p>

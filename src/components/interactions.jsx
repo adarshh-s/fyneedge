@@ -157,3 +157,55 @@ export function ScrollProgress() {
   const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 40 })
   return <motion.div className="scroll-progress" style={{ scaleX }} aria-hidden="true" />
 }
+
+/* ---------- spotlight: cards with .spot get a glowing border that follows the cursor ---------- */
+export function useSpotlight() {
+  useEffect(() => {
+    if (!canHover()) return
+    const move = (e) => {
+      const el = e.target instanceof Element ? e.target.closest('.spot') : null
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      el.style.setProperty('--my', `${e.clientY - r.top}px`)
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    return () => window.removeEventListener('pointermove', move)
+  }, [])
+}
+
+/* ---------- proximity: children matching `selector` get --f (0 → 1) by distance to the cursor ---------- */
+export function useProximity(ref, selector, radius = 200) {
+  useEffect(() => {
+    const root = ref.current
+    if (!root || !canHover()) return
+    const els = [...root.querySelectorAll(selector)]
+    let raf = 0
+    let px = -1e4
+    let py = -1e4
+    const paint = () => {
+      raf = 0
+      for (const el of els) {
+        const r = el.getBoundingClientRect()
+        const f = Math.max(0, 1 - Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2)) / radius)
+        el.style.setProperty('--f', (f * f).toFixed(3))
+      }
+    }
+    const move = (e) => {
+      px = e.clientX
+      py = e.clientY
+      if (!raf) raf = requestAnimationFrame(paint)
+    }
+    const leave = () => {
+      px = py = -1e4
+      if (!raf) raf = requestAnimationFrame(paint)
+    }
+    root.addEventListener('pointermove', move)
+    root.addEventListener('pointerleave', leave)
+    return () => {
+      cancelAnimationFrame(raf)
+      root.removeEventListener('pointermove', move)
+      root.removeEventListener('pointerleave', leave)
+    }
+  }, [ref, selector, radius])
+}
