@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import Lenis from 'lenis'
 import { lenisRef } from './lenis.js'
 import CommandPalette from './components/CommandPalette.jsx'
+import { Cursor, ScrollProgress } from './components/interactions.jsx'
 import Nav from './components/Nav.jsx'
 import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
@@ -53,6 +54,8 @@ export default function App() {
   return (
     <>
       <ScrollReset />
+      <ScrollProgress />
+      <Cursor />
       <Nav />
       <main>
         <Routes>

@@ -4,7 +4,7 @@ import { Counter, Reveal } from '../components/ui.jsx'
 export default function Bento() {
   return (
     <section className="bento container">
-      <Reveal className="bento__card bento__card--sky" delay={0}>
+      <Reveal tilt className="bento__card bento__card--sky" delay={0}>
         <Clouds seed={11} className="bento__clouds" />
         <div className="bento__top">
           <span className="bento__brand">OmniReach AI</span>
@@ -18,7 +18,7 @@ export default function Bento() {
         </div>
       </Reveal>
 
-      <Reveal className="bento__card bento__card--grey" delay={0.1}>
+      <Reveal tilt className="bento__card bento__card--grey" delay={0.1}>
         <p className="bento__label">Always on</p>
         <p className="bento__num">
           <Counter to={24} />
@@ -32,14 +32,14 @@ export default function Bento() {
       </Reveal>
 
       <div className="bento__col">
-        <Reveal className="bento__card bento__card--lime" delay={0.2}>
+        <Reveal tilt className="bento__card bento__card--lime" delay={0.2}>
           <p className="bento__label">Under one roof</p>
           <p className="bento__num">
             <Counter to={1} /> team
           </p>
           <p>Strategy, design, development and AI — no juggling agencies or freelancers.</p>
         </Reveal>
-        <Reveal className="bento__card bento__card--dark" delay={0.3}>
+        <Reveal tilt className="bento__card bento__card--dark" delay={0.3}>
           <p className="bento__label">From idea to impact</p>
           <p className="bento__num">
             <Counter to={4} /> steps

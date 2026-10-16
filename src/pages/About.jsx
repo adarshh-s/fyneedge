@@ -28,11 +28,11 @@ export default function About() {
       </section>
 
       <section className="mv container">
-        <Reveal className="mv__card mv__card--lime">
+        <Reveal tilt className="mv__card mv__card--lime">
           <Eyebrow>Our mission</Eyebrow>
           <p>Make powerful technology simple and useful for every business.</p>
         </Reveal>
-        <Reveal className="mv__card mv__card--dark" delay={0.1}>
+        <Reveal tilt className="mv__card mv__card--dark" delay={0.1}>
           <Eyebrow light>Our vision</Eyebrow>
           <p>A world where every business has an AI team working beside its people.</p>
         </Reveal>
@@ -47,7 +47,7 @@ export default function About() {
         </div>
         <div className="values__grid">
           {VALUES.map(([t, d], i) => (
-            <Reveal className="values__item" key={t} delay={i * 0.08}>
+            <Reveal tilt className="values__item" key={t} delay={i * 0.08}>
               <span>0{i + 1}</span>
               <h3>{t}</h3>
               <p>{d}</p>

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView, useScroll, useTransform, animate } from 'framer-motion'
 import { SITE } from '../config.js'
+import { Scramble, useMagnetic, useTilt } from './interactions.jsx'
 
 export const ease = [0.22, 1, 0.36, 1]
 
@@ -33,12 +34,15 @@ export function Arrow() {
   )
 }
 
-/** Pill button. variant: lime | dark | glass | ghost | white */
+const MotionLink = motion.create(Link)
+
+/** Pill button. variant: lime | dark | glass | ghost | white — magnetic, with scrambling label */
 export function Btn({ to, href, variant = 'lime', children, arrow, ...rest }) {
   const cls = `btn btn--${variant}`
+  const mag = useMagnetic()
   const inner = (
     <>
-      <span className="btn__label">{children}</span>
+      <span className="btn__label">{typeof children === 'string' ? <Scramble text={children} /> : children}</span>
       {arrow && (
         <span className="btn__icon">
           <Arrow />
@@ -48,20 +52,20 @@ export function Btn({ to, href, variant = 'lime', children, arrow, ...rest }) {
   )
   if (href)
     return (
-      <a className={cls} href={href} target="_blank" rel="noreferrer" {...rest}>
+      <motion.a className={cls} href={href} target="_blank" rel="noreferrer" {...mag} {...rest}>
         {inner}
-      </a>
+      </motion.a>
     )
   if (to)
     return (
-      <Link className={cls} to={to} {...rest}>
+      <MotionLink className={cls} to={to} {...mag} {...rest}>
         {inner}
-      </Link>
+      </MotionLink>
     )
   return (
-    <button className={cls} {...rest}>
+    <motion.button className={cls} {...mag} {...rest}>
       {inner}
-    </button>
+    </motion.button>
   )
 }
 
@@ -69,19 +73,23 @@ export function Eyebrow({ children, light }) {
   return <p className={`eyebrow ${light ? 'eyebrow--light' : ''}`}>{children}</p>
 }
 
-/** Fade + rise when scrolled into view */
-export function Reveal({ children, delay = 0, y = 40, className, as = 'div', ...rest }) {
+/** Fade + rise when scrolled into view. `tilt` adds a 3D hover tilt with glare. */
+export function Reveal({ children, delay = 0, y = 40, className, as = 'div', tilt, ...rest }) {
   const M = motion[as]
+  const t = useTilt()
+  const tiltProps = tilt ? { style: t.style, onMouseMove: t.onMouseMove, onMouseLeave: t.onMouseLeave } : {}
   return (
     <M
-      className={className}
+      className={tilt ? `${className || ''} is-tilt` : className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-10% 0px' }}
       transition={{ duration: 0.9, ease, delay }}
+      {...tiltProps}
       {...rest}
     >
       {children}
+      {tilt && <span className="glare" aria-hidden="true" />}
     </M>
   )
 }

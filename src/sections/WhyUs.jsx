@@ -13,7 +13,7 @@ export default function WhyUs() {
         </div>
         <div className="why__grid">
           {WHY.map(([t, d], i) => (
-            <Reveal className="why__item" key={t} delay={i * 0.08}>
+            <Reveal tilt className="why__item" key={t} delay={i * 0.08}>
               <span className="why__icon">{ICONS[i]}</span>
               <h3>{t}</h3>
               <p>{d}</p>

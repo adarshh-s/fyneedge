@@ -1,4 +1,5 @@
 import Hero from '../sections/Hero.jsx'
+import BigType from '../sections/BigType.jsx'
 import Capabilities from '../sections/Capabilities.jsx'
 import Statement from '../sections/Statement.jsx'
 import Bento from '../sections/Bento.jsx'
@@ -20,6 +21,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <BigType />
       <Capabilities />
       <Statement />
       <Bento />

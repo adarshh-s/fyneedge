@@ -53,7 +53,7 @@ export default function Products() {
         </div>
         <div className="prod__why">
           {OMNI_WHY.map(([t, d], i) => (
-            <Reveal className="prod__whyitem" key={t} delay={i * 0.08}>
+            <Reveal tilt className="prod__whyitem" key={t} delay={i * 0.08}>
               <span>0{i + 1}</span>
               <b>{t}</b>
               <p>{d}</p>
@@ -79,7 +79,7 @@ export default function Products() {
                 ['AEO', 'Answer engines', 'Clear, answer-ready content built to win featured snippets and voice-search answers.'],
                 ['GEO', 'Generative engines', 'Consistent, trusted information about your business so AI assistants mention and cite you.'],
               ].map(([k, t, d], i) => (
-                <Reveal className="tri__item" key={k} delay={i * 0.08}>
+                <Reveal tilt className="tri__item" key={k} delay={i * 0.08}>
                   <span>{k}</span>
                   <b>{t}</b>
                   <p>{d}</p>

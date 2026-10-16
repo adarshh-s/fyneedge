@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-
 import { NAV } from '../config.js'
 import { Btn, Logo, ease } from './ui.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
+import { Scramble } from './interactions.jsx'
 import { MOD, openPalette } from './CommandPalette.jsx'
 
 export default function Nav() {
@@ -38,7 +39,7 @@ export default function Nav() {
         <nav className="nav__links">
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end className="nav__link">
-              {n.label}
+              <Scramble text={n.label.toUpperCase()} />
             </NavLink>
           ))}
         </nav>
