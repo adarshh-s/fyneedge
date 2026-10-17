@@ -4404,3 +4404,137 @@ kbd {
 .why__item:hover {
   --spot: var(--ink);
 }
+
+
+/* =========================================================
+   LUMINA HERO — navy sky, clustered arrows, glowing horizon
+   (always dark, in both themes)
+   ========================================================= */
+.lhero {
+  --lum-1: #b9d7ff;
+  --lum-2: #a9d2ff;
+  background:
+    radial-gradient(130% 80% at 50% 115%, #ffffff 0%, #e6f3ff 14%, #a9d1ff 30%, #5a92e6 47%, #1d4291 64%, #0b1f4f 78%, transparent 92%),
+    linear-gradient(180deg, #030817 0%, #071436 50%, #0b1d4a 100%);
+}
+.lhero__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lum-2);
+  background: rgba(10, 24, 60, 0.7);
+  border: 1px solid rgba(150, 195, 255, 0.18);
+  backdrop-filter: blur(8px);
+}
+.lhero__pill i {
+  width: 6px;
+  height: 6px;
+  background: var(--lum-2);
+  box-shadow: 0 0 8px var(--lum-2);
+  animation: blink 1.8s ease-in-out infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+.lhero .hero__title {
+  color: var(--lum-1);
+  font-weight: 450;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0 40px rgba(120, 180, 255, 0.25);
+}
+.lhero .hchar {
+  color: color-mix(in srgb, #ffffff calc(var(--f) * 100%), currentColor);
+  text-shadow: 0 0 calc(var(--f) * 30px) rgba(170, 215, 255, calc(var(--f) * 0.9));
+}
+.lhero .hero__sub {
+  color: rgba(214, 232, 255, 0.72);
+  max-width: 56ch;
+}
+.lhero .hero__foot {
+  color: rgba(214, 232, 255, 0.55);
+}
+.lhero .hero__foot span {
+  text-shadow: none;
+}
+.btn--snow {
+  --bg: #ffffff;
+  --fg: #07102a;
+  height: 42px;
+  border-radius: 8px;
+}
+.btn--night {
+  --bg: rgba(5, 12, 32, 0.85);
+  --fg: #e6f2ff;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid rgba(150, 195, 255, 0.22);
+}
+
+
+/* ---- Lumina design on inner pages + CTA ---- */
+.lhero--page {
+  height: auto;
+  min-height: min(760px, 90vh);
+}
+.lhero--page .ghero__content {
+  min-height: min(760px, 90vh);
+  padding-top: 140px;
+}
+.lhero--page .hero__title {
+  font-size: clamp(2.4rem, 6vw, 5.2rem);
+  line-height: 1;
+}
+.cta__box.lhero {
+  background:
+    radial-gradient(130% 80% at 50% 115%, #ffffff 0%, #e6f3ff 14%, #a9d1ff 30%, #5a92e6 47%, #1d4291 64%, #0b1f4f 78%, transparent 92%),
+    linear-gradient(180deg, #030817 0%, #071436 50%, #0b1d4a 100%);
+}
+.cta__box.lhero .cta__title {
+  color: var(--lum-1);
+  font-weight: 450;
+  letter-spacing: -0.045em;
+}
+.cta__box.lhero .cta__inner p {
+  color: rgba(214, 232, 255, 0.72);
+}
+
+
+/* =========================================================
+   HERO EXIT — fly-through + next section slides over
+   ========================================================= */
+.ghero-pin {
+  position: relative;
+  height: 250vh;
+}
+.ghero-pin > .ghero {
+  position: sticky;
+  top: 0;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.fly-title {
+  transform-origin: 50% 50%;
+}
+.ghero__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #02050f;
+  pointer-events: none;
+}
+/* the section after the hero rides up over it */
+.ghero-pin + .bigtype {
+  margin-top: -100vh;
+  z-index: 5;
+  background: var(--bg);
+  border-radius: 36px 36px 0 0;
+  box-shadow: 0 -30px 80px -20px rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(150, 200, 255, 0.25);
+}

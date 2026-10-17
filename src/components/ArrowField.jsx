@@ -40,7 +40,7 @@ const angleLerp = (a, b, t) => {
   return a + d * t
 }
 
-export default function ArrowField({ progressRef, theme = 'light', fullBleed = false }) {
+export default function ArrowField({ progressRef, theme = 'light', fullBleed = false, variant }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -56,6 +56,8 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
     let rows = 0
     let angles = new Float32Array(0)
     let glow = new Float32Array(0)
+    let mask = new Float32Array(0) // per-cell density (organic clusters for the lumina variant)
+    const lumina = variant === 'lumina'
     let raf = 0
     let visible = true
     const mouse = { x: -9999, y: -9999, active: false, last: -10 }
@@ -65,6 +67,7 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
     const glints = []
     let lastComet = 0
     let lastGlint = 0
+    let lastAuto = 0
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -79,11 +82,37 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       rows = Math.ceil(h / cell) + 1
       angles = new Float32Array(cols * rows).fill(BASE)
       glow = new Float32Array(cols * rows)
+      mask = new Float32Array(cols * rows).fill(1)
+      if (lumina) {
+        // smooth value noise → soft clusters that are denser toward the sides
+        const hash = (x, y) => {
+          const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453
+          return s - Math.floor(s)
+        }
+        const noise = (x, y) => {
+          const xi = Math.floor(x)
+          const yi = Math.floor(y)
+          const xf = x - xi
+          const yf = y - yi
+          const u = xf * xf * (3 - 2 * xf)
+          const v = yf * yf * (3 - 2 * yf)
+          const a = hash(xi, yi) + (hash(xi + 1, yi) - hash(xi, yi)) * u
+          const b = hash(xi, yi + 1) + (hash(xi + 1, yi + 1) - hash(xi, yi + 1)) * u
+          return a + (b - a) * v
+        }
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const n = noise(c / 9, r / 9) * 0.65 + noise(c / 3.5 + 40, r / 3.5) * 0.35
+            const tower = smooth(0.14, 0.34, Math.abs(c / cols - 0.5))
+            mask[r * cols + c] = Math.min(1, tower * (0.45 + 0.75 * smooth(0.3, 0.65, n)) + 0.12 * smooth(0.5, 0.75, n))
+          }
+        }
+      }
       if (reduce) draw(performance.now())
     }
 
-    const upper = dark ? [190, 215, 255] : [210, 228, 255]
-    const lower = dark ? [120, 160, 255] : [47, 116, 255]
+    const upper = lumina ? [105, 155, 235] : dark ? [190, 215, 255] : [210, 228, 255]
+    const lower = lumina ? [215, 234, 255] : dark ? [120, 160, 255] : [47, 116, 255]
 
     const spawnComet = (t) => {
       const fromLeft = Math.random() < 0.45
@@ -107,6 +136,12 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
         if (t - lastComet > 0.55) {
           lastComet = t
           spawnComet(t)
+        }
+        if (t - lastAuto > 2.8) {
+          lastAuto = t
+          // soft ripple rolling out from the centre
+          clicks.push({ x: w / 2, y: h * 0.45, t, auto: true })
+          if (clicks.length > 6) clicks.shift()
         }
         if (t - lastGlint > 0.22) {
           lastGlint = t
@@ -146,22 +181,23 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       // ---- click glow: gathers during the charge, flashes on release ----
       for (const c of clicks) {
         const age = t - c.t
+        const charge = c.auto ? 0 : CHARGE
         let a = 0
         let rad = 0
-        if (age < CHARGE) {
-          const k = age / CHARGE
-          a = 0.12 + k * 0.25
-          rad = 140 - k * 90
+        if (age < charge) {
+          const k = age / charge
+          a = 0.15 + k * 0.35
+          rad = 160 - k * 100
         } else {
-          const k = (age - CHARGE) / 0.7
+          const k = (age - charge) / (c.auto ? 0.9 : 0.8)
           if (k > 1) continue
-          a = 0.55 * Math.pow(1 - k, 2)
-          rad = 60 + k * 320
+          a = (c.auto ? 0.1 : 0.85) * Math.pow(1 - k, 2)
+          rad = c.auto ? 40 + k * 240 : 80 + k * 460
         }
+        const [r1, g1, b1] = c.auto ? [150, 200, 255] : WAVE_COLORS[c.c]
         const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, rad)
         g.addColorStop(0, `rgba(255,255,255,${a.toFixed(3)})`)
-        const [r1, g1, b1] = WAVE_COLORS[c.c]
-        g.addColorStop(0.35, `rgba(${r1},${g1},${b1},${(a * 0.45).toFixed(3)})`)
+        g.addColorStop(0.35, `rgba(${r1},${g1},${b1},${(a * 0.5).toFixed(3)})`)
         g.addColorStop(1, `rgba(${r1},${g1},${b1},0)`)
         ctx.fillStyle = g
         ctx.fillRect(c.x - rad, c.y - rad, rad * 2, rad * 2)
@@ -172,17 +208,19 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       const colorPaths = WAVE_COLORS.map(() => Array.from({ length: LIME_BUCKETS }, () => new Path2D()))
 
       const cx = w / 2
-      const cy = h * (fullBleed ? 0.42 : 0.47)
-      const scrollAngle = BASE + (-Math.PI / 2 - BASE) * smooth(0, 0.8, p)
-      const fadeAll = 1 - smooth(0.2, 1, p)
+      const cy = h * (fullBleed || lumina ? 0.42 : 0.47)
+      const scrollAngle = lumina ? BASE : BASE + (-Math.PI / 2 - BASE) * smooth(0, 0.8, p)
+      const fadeAll = lumina ? 1 - smooth(0.42, 0.72, p) : 1 - smooth(0.2, 1, p)
+      // lumina fly-through: on scroll the field zooms toward the viewer from the centre
+      const zoom = lumina ? 1 + Math.pow(smooth(0, 0.7, p), 1.6) * 3.6 : 1
       const lane = cell * 0.75
 
       for (let r = 0; r < rows; r++) {
         const y = r * cell + cell / 2
         const yn = y / h
-        const vert = fullBleed ? smooth(-0.1, 0.12, yn) * (1 - smooth(0.88, 1.05, yn)) : smooth(-0.05, 0.35, yn) * (1 - smooth(0.62, 0.98, yn))
+        const vert = lumina ? smooth(-0.05, 0.2, yn) * (0.6 + 0.4 * yn) : fullBleed ? smooth(-0.1, 0.12, yn) * (1 - smooth(0.88, 1.05, yn)) : smooth(-0.05, 0.35, yn) * (1 - smooth(0.62, 0.98, yn))
         if (vert <= 0.01) continue
-        const family = !fullBleed && yn > 0.62 ? 1 : 0
+        const family = lumina ? (yn > 0.55 ? 1 : 0) : !fullBleed && yn > 0.62 ? 1 : 0
         for (let c = 0; c < cols; c++) {
           const x = c * cell + cell / 2
           const i = r * cols + c
@@ -192,10 +230,10 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
           const calm = smooth(0.55, 1.15, Math.sqrt(dx * dx + dy * dy))
 
           const band = Math.max(0, Math.sin((x * 0.55 - y * 0.85) / 150 + t * 1.1))
-          let a = vert * calm * (0.32 + Math.pow(band, 6) * 0.4)
+          let a = vert * calm * mask[i] * (lumina ? 0.55 + Math.pow(band, 6) * 0.45 : 0.32 + Math.pow(band, 6) * 0.4)
 
           let target = scrollAngle
-          let boost = 0
+          let boost = (zoom - 1) * 0.12
           let ox = 0
           let oy = 0
           let flip = 1 // 1 = front face, -1 = back face (cos of the tumble angle)
@@ -230,32 +268,44 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
             const kx = x - ck.x
             const ky = y - ck.y
             const d = Math.sqrt(kx * kx + ky * ky) || 1
-            if (age < CHARGE) {
-              const f = smooth(240, 0, d) * smooth(0, CHARGE, age)
+            const charge = ck.auto ? 0 : CHARGE
+            if (age < charge) {
+              // click charge: arrows face the point and get pulled in hard
+              const f = smooth(300, 0, d) * smooth(0, charge, age)
               if (f > 0) {
-                target = angleLerp(target, Math.atan2(-ky, -kx), f) // face the point
-                ox -= (kx / d) * f * Math.min(d * 0.25, 16) // pulled in
-                oy -= (ky / d) * f * Math.min(d * 0.25, 16)
-                boost = Math.max(boost, f * 0.9)
+                target = angleLerp(target, Math.atan2(-ky, -kx), f)
+                ox -= (kx / d) * f * Math.min(d * 0.3, 22)
+                oy -= (ky / d) * f * Math.min(d * 0.3, 22)
+                boost = Math.max(boost, f)
               }
             } else {
-              const ra = age - CHARGE
-              const local = (ra * WAVE_SPEED - d) / WAVE_WIDTH // 0 → 1 while the wave crosses this arrow
+              const ra = age - charge
+              const local = (ra * (ck.auto ? 420 : WAVE_SPEED) - d) / (ck.auto ? 120 : WAVE_WIDTH)
               if (local > 0 && local < 1) {
-                const amp = 1 - ra / WAVE_LIFE
                 const e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2
-                flip = Math.cos(e * TAU) // one full tumble
-                const bk = flip < 0 ? -flip * amp : 0
-                if (bk > back) {
-                  back = bk
-                  backColor = ck.c
+                if (ck.auto) {
+                  // low intensity: a gentle tilt and glow that fades out with distance
+                  const amp = Math.max(0, 1 - ra / 2.6)
+                  flip = Math.min(flip, 1 - (1 - Math.cos(e * TAU)) * 0.28 * amp)
+                  const bump = Math.sin(local * Math.PI) * amp
+                  ox += (kx / d) * bump * 4
+                  oy += (ky / d) * bump * 4
+                  boost = Math.max(boost, bump * 0.55)
+                } else {
+                  // high intensity: full tumble with a coloured back face and a strong push
+                  const amp = Math.max(0, 1 - ra / WAVE_LIFE)
+                  flip = Math.cos(e * TAU)
+                  const bk = flip < 0 ? -flip * amp : 0
+                  if (bk > back) {
+                    back = bk
+                    backColor = ck.c
+                  }
+                  const bump = Math.sin(local * Math.PI) * amp
+                  ox += (kx / d) * bump * 20
+                  oy += (ky / d) * bump * 20
+                  boost = Math.max(boost, bump)
+                  angles[i] = angleLerp(angles[i], target, 0.25)
                 }
-                const bump = Math.sin(local * Math.PI) * amp
-                ox += (kx / d) * bump * 12
-                oy += (ky / d) * bump * 12
-                boost = Math.max(boost, bump)
-                // the wave also snaps arrows back to ↗
-                angles[i] = angleLerp(angles[i], target, 0.25)
               }
             }
           }
@@ -269,12 +319,12 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
           if (a < 0.03 && lime < 0.05) continue
 
           // arrow in local coords (u along the shaft, v across), tumbling scales u
-          const s = cell * 0.26 * (1 + glow[i] * 0.4)
+          const s = cell * 0.26 * (1 + glow[i] * 0.4) * Math.sqrt(zoom)
           const hs = s * 0.75
           const ca = Math.cos(angles[i])
           const sa = Math.sin(angles[i])
-          const px = x + ox
-          const py = y + oy
+          const px = zoom === 1 ? x + ox : cx + (x + ox - cx) * zoom
+          const py = zoom === 1 ? y + oy : cy + (y + oy - cy) * zoom
           const u0 = -s * flip
           const u1 = s * flip
           const ua = (s - hs * 0.7071) * flip
@@ -290,11 +340,11 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
 
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
-      ctx.lineWidth = 1.35
+      ctx.lineWidth = lumina ? 1.1 : 1.35
       for (let fam = 0; fam < 2; fam++) {
         const [cr, cg, cb] = fam ? lower : upper
         for (let b = 0; b < BUCKETS; b++) {
-          ctx.strokeStyle = `rgba(${cr},${cg},${cb},${((b + 0.5) / BUCKETS).toFixed(2)})`
+          ctx.strokeStyle = ctx.fillStyle = `rgba(${cr},${cg},${cb},${((b + 0.5) / BUCKETS).toFixed(2)})`
           ctx.stroke(paths[fam * BUCKETS + b])
         }
       }
@@ -303,7 +353,7 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       WAVE_COLORS.forEach(([cr, cg, cb], ci) => {
         ctx.shadowColor = `rgba(${cr},${cg},${cb},0.75)`
         for (let b = 0; b < LIME_BUCKETS; b++) {
-          ctx.strokeStyle = `rgba(${cr},${cg},${cb},${((b + 1) / LIME_BUCKETS).toFixed(2)})`
+          ctx.strokeStyle = ctx.fillStyle = `rgba(${cr},${cg},${cb},${((b + 1) / LIME_BUCKETS).toFixed(2)})`
           ctx.stroke(colorPaths[ci][b])
         }
       })
@@ -330,11 +380,11 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       if (e.target.closest('a, button')) return
       const r = canvas.getBoundingClientRect()
       const now = performance.now() / 1000
-      const active = clicks.filter((c) => now - c.t < CHARGE + WAVE_LIFE)
+      const active = clicks.filter((c) => !c.auto && now - c.t < CHARGE + WAVE_LIFE)
       // a fresh click starts at lime; clicks during a live wave take the next colour
       const c = active.length ? (active[active.length - 1].c + 1) % WAVE_COLORS.length : 0
       clicks.push({ x: ((e.clientX - r.left) * w) / r.width, y: ((e.clientY - r.top) * h) / r.height, t: now, c })
-      if (clicks.length > 3) clicks.shift()
+      if (clicks.length > 6) clicks.shift()
       if (reduce) draw(performance.now())
     }
 
@@ -359,7 +409,7 @@ export default function ArrowField({ progressRef, theme = 'light', fullBleed = f
       host.removeEventListener('pointerleave', onLeave)
       host.removeEventListener('pointerdown', onDown)
     }
-  }, [theme, progressRef, fullBleed])
+  }, [theme, progressRef, fullBleed, variant])
 
   return <canvas ref={canvasRef} className="ghero__canvas" aria-hidden="true" />
 }

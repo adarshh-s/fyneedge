@@ -2,7 +2,6 @@ import { Fragment, useEffect, useRef } from 'react'
 import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import ArrowField from '../components/ArrowField.jsx'
 import { Btn, ease } from '../components/ui.jsx'
-import { useTheme } from '../theme.js'
 
 const line = (delay) => ({
   initial: { y: '110%' },
@@ -73,52 +72,67 @@ function LiveTitle({ lines }) {
 
 export default function Hero() {
   const ref = useRef(null)
-  const theme = useTheme()
   const progress = useRef(0)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  // pinned for a short run of scroll so the exit can play out
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   useMotionValueEvent(scrollYProgress, 'change', (v) => (progress.current = v))
-  const textY = useTransform(scrollYProgress, [0, 0.7], [0, -120])
-  const textO = useTransform(scrollYProgress, [0, 0.55], [1, 0])
+  // fly through: the headline grows past the viewer, the rest fades quickly
+  const titleS = useTransform(scrollYProgress, [0, 0.5], [1, 3.4])
+  const titleO = useTransform(scrollYProgress, [0.18, 0.42], [1, 0])
+  const restO = useTransform(scrollYProgress, [0, 0.12], [1, 0])
+  const restY = useTransform(scrollYProgress, [0, 0.2], [0, 40])
+  // then the next section slides over: the hero sinks back and dims
+  const sinkS = useTransform(scrollYProgress, [0.4, 1], [1, 0.9])
+  const sinkR = useTransform(scrollYProgress, [0.4, 1], [0, 36])
+  const dim = useTransform(scrollYProgress, [0.4, 1], [0, 0.65])
 
   return (
-    <section className="ghero" ref={ref}>
-      <motion.div className="ghero__field" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.6, ease }}>
-        <ArrowField progressRef={progress} theme={theme} />
-      </motion.div>
-      <div className="ghero__halo" />
-
-      <motion.div className="ghero__content" style={{ y: textY, opacity: textO }}>
-        <motion.p className="pill pill--glass" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
-          <span className="dot" /> Web · Mobile · AI agents
-        </motion.p>
-        <LiveTitle
-          lines={[
-            { text: 'We build software & AI agents' },
-            { text: 'that grow your business.', soft: true },
-          ]}
-        />
-        <motion.p className="hero__sub" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6, ease }}>
-          Web applications, mobile apps and AI agents — designed, built and run by one team. From the first idea to customers answered on WhatsApp, email and the phone.
-        </motion.p>
-        <motion.div className="hero__ctas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.75, ease }}>
-          <Btn to="/products#omnireach" variant="glass">
-            Explore OmniReach AI
-          </Btn>
-          <Btn to="/contact" variant="lime" arrow>
-            Book a free consultation
-          </Btn>
+    <section className="ghero-pin" ref={ref}>
+      <motion.div className="ghero lhero" style={{ scale: sinkS, borderRadius: sinkR }}>
+        <motion.div className="ghero__field" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, ease }}>
+          <ArrowField progressRef={progress} theme="dark" variant="lumina" />
         </motion.div>
-      </motion.div>
 
-      <div className="hero__foot">
-        <span className="hero__scroll">
-          <i /> Scroll
-        </span>
-        <span className="hero__hint">
-          <i className="hint-fine">Move through the field · click anywhere</i>
-          <i className="hint-touch">Tap to send a wave</i>
-        </span>
-      </div>
+        <div className="ghero__content">
+          <motion.div style={{ opacity: restO, y: restY }}>
+            <motion.p className="lhero__pill" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
+              <i /> New: OmniReach AI — WhatsApp, email &amp; voice in one
+            </motion.p>
+          </motion.div>
+          <motion.div className="fly-title" style={{ scale: titleS, opacity: titleO }}>
+            <LiveTitle
+              lines={[
+                { text: 'Software and AI Agents' },
+                { text: 'that Grow Your Business' },
+              ]}
+            />
+          </motion.div>
+          <motion.div style={{ opacity: restO, y: restY }}>
+            <motion.p className="hero__sub" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6, ease }}>
+              Web apps, mobile apps and AI agents — designed, built and run by one team, from the first idea to customers answered on WhatsApp, email and the phone.
+            </motion.p>
+            <motion.div className="hero__ctas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.75, ease }}>
+              <Btn to="/contact" variant="snow">
+                Start a project
+              </Btn>
+              <Btn to="/products#omnireach" variant="night">
+                Explore OmniReach
+              </Btn>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        <motion.div className="hero__foot" style={{ opacity: restO }}>
+          <span className="hero__scroll">
+            <i /> Scroll
+          </span>
+          <span className="hero__hint">
+            <i className="hint-fine">Move through the field · click anywhere</i>
+            <i className="hint-touch">Tap to send a wave</i>
+          </span>
+        </motion.div>
+        <motion.div className="ghero__dim" style={{ opacity: dim }} />
+      </motion.div>
     </section>
   )
 }

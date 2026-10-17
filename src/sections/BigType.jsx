@@ -39,8 +39,8 @@ function Flyer({ f, progress }) {
 export default function BigType() {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const scale = useTransform(scrollYProgress, [0.15, 0.45], [0.8, 1])
-  const o = useTransform(scrollYProgress, [0.15, 0.35], [0, 1])
+  const scale = useTransform(scrollYProgress, [0.04, 0.3], [0.8, 1])
+  const o = useTransform(scrollYProgress, [0.04, 0.18], [0, 1])
   return (
     <section className="bigtype" ref={ref}>
       <div className="bigtype__sticky">
