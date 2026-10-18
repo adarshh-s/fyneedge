@@ -1,8 +1,8 @@
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { SERVICES } from '../data.js'
 import { AgentMock, AppScreen, BrowserMock, PhoneMock } from '../components/mockups.jsx'
-import { Btn, Eyebrow, SplitHeading } from '../components/ui.jsx'
+import { Arrow, Btn, Eyebrow, SplitHeading, ease } from '../components/ui.jsx'
 
 const VISUALS = {
   web: () => <BrowserMock />,
@@ -19,53 +19,65 @@ const VISUALS = {
   ai: () => <AgentMock />,
 }
 
-function Card({ s, i, n, progress }) {
-  const scale = useTransform(progress, [i / n, 1], [1, 1 - (n - 1 - i) * 0.05])
-  const V = VISUALS[s.id]
-  return (
-    <div className="stack__slot" style={{ top: `calc(90px + ${i * 22}px)` }}>
-      <motion.article className={`spot stack__card stack__card--${s.theme}`} style={{ scale }}>
-        <div className="stack__text">
-          <span className="stack__num">
-            {s.num} / {s.tag}
-          </span>
-          <h3>{s.title}</h3>
-          <p>{s.short}</p>
-          <ul className="chips">
-            {s.build.slice(0, 4).map((b) => (
-              <li key={b}>{b}</li>
-            ))}
-          </ul>
-          <Btn to={`/services#${s.id}`} variant={s.theme === 'lime' ? 'dark' : s.theme === 'dark' ? 'lime' : 'white'} arrow>
-            {s.cta}
-          </Btn>
-        </div>
-        <div className="stack__visual">
-          <V />
-        </div>
-      </motion.article>
-    </div>
-  )
-}
+const TAGS = ['Customer portals', 'SaaS platforms', 'iOS & Android', 'AI voice agents', 'WhatsApp agents', 'Workflow automation', 'CRM integrations', 'Booking & payments']
 
 export default function ServicesStack() {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   return (
-    <section className="stack container" id="services">
+    <section className="sbento container" id="services">
       <div className="section-head">
         <Eyebrow>What we do</Eyebrow>
         <SplitHeading text="Everything you need to build, launch and grow — under one roof." className="h2" />
       </div>
-      <div className="stack__list" ref={ref}>
-        {SERVICES.map((s, i) => (
-          <Card key={s.id} s={s} i={i} n={SERVICES.length} progress={scrollYProgress} />
-        ))}
-      </div>
-      <div className="center">
-        <Btn to="/services" variant="ghost" arrow>
-          View all services
-        </Btn>
+
+      <div className="sbento__grid">
+        {SERVICES.map((s, i) => {
+          const V = VISUALS[s.id]
+          return (
+            <motion.div
+              key={s.id}
+              className={`sbento__cell sbento__cell--${s.id}`}
+              initial={{ opacity: 0, y: 50, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-10% 0px' }}
+              transition={{ duration: 0.9, ease, delay: i * 0.12 }}
+            >
+              <Link to={`/services#${s.id}`} className="spot sbento__card" data-cursor="Open">
+                <div className="sbento__text">
+                  <span className="sbento__num">
+                    {s.num} <i /> {s.tag}
+                  </span>
+                  <h3>{s.title}</h3>
+                  <p>{s.short}</p>
+                </div>
+                <div className="sbento__visual">
+                  <V />
+                </div>
+                <span className="sbento__go">
+                  <Arrow />
+                </span>
+              </Link>
+            </motion.div>
+          )
+        })}
+
+        <motion.div
+          className="sbento__cell sbento__cell--tags"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-10% 0px' }}
+          transition={{ duration: 0.9, ease, delay: 0.36 }}
+        >
+          <div className="spot sbento__card sbento__card--tags">
+            <ul>
+              {TAGS.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+            <Btn to="/services" variant="snow" arrow>
+              View all services
+            </Btn>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

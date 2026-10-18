@@ -2,10 +2,8 @@ import Hero from '../sections/Hero.jsx'
 import BigType from '../sections/BigType.jsx'
 import Capabilities from '../sections/Capabilities.jsx'
 import Statement from '../sections/Statement.jsx'
-import Bento from '../sections/Bento.jsx'
 import ServicesStack from '../sections/ServicesStack.jsx'
 import ProductsScroll from '../sections/ProductsScroll.jsx'
-import OmniPhone from '../sections/OmniPhone.jsx'
 import Shortcut from '../sections/Shortcut.jsx'
 import Integrations from '../sections/Integrations.jsx'
 import Process from '../sections/Process.jsx'
@@ -24,11 +22,9 @@ export default function Home() {
       <BigType />
       <Capabilities />
       <Statement />
-      <Bento />
       <Shortcut />
       <ServicesStack />
       <ProductsScroll />
-      <OmniPhone />
       <Integrations />
       <Process />
       <WhyUs />

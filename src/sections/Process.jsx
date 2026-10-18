@@ -13,7 +13,7 @@ export default function Process() {
   const head = useRef(null)
   const [pts, setPts] = useState([])
   const [active, setActive] = useState(-1)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.7', 'end 0.6'] })
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.8', 'center 0.85'] })
   const prog = useSpring(scrollYProgress, { stiffness: 90, damping: 24 })
   const clipW = useTransform(prog, [0, 1], [0, 1200])
 

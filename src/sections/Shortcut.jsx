@@ -13,14 +13,16 @@ const MAP = {
 }
 const ORDER = Object.keys(MAP)
 
-// 'label:width' — every row adds up to 12.8 units
+// Mac-style layout. Each key: [legend, width (u), sub-legend, extra class]. Every row adds up to 15u.
+const F = (n) => [`F${n}`, 1, '', 'fnkey']
 const ROWS = [
-  ['esc:1.3', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '⌫:1.5'],
-  ['tab:1.3', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '\\:1.5'],
-  ['caps:1.6', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '↵:2.2'],
-  ['⇧:2.1', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '⇧:1.7'],
-  ['fn', '⌃', '⌥', '⌘:1.3', 'space:4.2', '⌘:1.3', '⌥', '←', '→'],
-].map((row) => row.map((k) => (k.length > 1 && k.includes(':') ? k.split(':') : [k, 1])))
+  [['esc', 1.5, '', 'mod'], ...Array.from({ length: 12 }, (_, i) => F(i + 1)), ['', 1.5, '', 'touch']],
+  [['~', 1, '`'], ['1', 1, '!'], ['2', 1, '@'], ['3', 1, '#'], ['4', 1, '$'], ['5', 1, '%'], ['6', 1, '^'], ['7', 1, '&'], ['8', 1, '*'], ['9', 1, '('], ['0', 1, ')'], ['–', 1, '_'], ['=', 1, '+'], ['delete', 2, '', 'mod mod--r']],
+  [['tab', 1.5, '', 'mod'], ...'QWERTYUIOP'.split('').map((c) => [c, 1]), ['[', 1, '{'], [']', 1, '}'], ['\\', 1.5, '|']],
+  [['caps lock', 1.8, '', 'mod'], ...'ASDFGHJKL'.split('').map((c) => [c, 1]), [';', 1, ':'], ["'", 1, '"'], ['return', 2.2, '', 'mod mod--r']],
+  [['shift', 2.35, '⇧', 'mod'], ...'ZXCVBNM'.split('').map((c) => [c, 1]), [',', 1, '<'], ['.', 1, '>'], ['/', 1, '?'], ['shift', 2.65, '⇧', 'mod mod--r']],
+  [['fn', 1, '◍', 'mod'], ['control', 1, '⌃', 'mod'], ['option', 1, '⌥', 'mod'], ['command', 1.25, '⌘', 'mod'], [' ', 5.5, '', 'space'], ['command', 1.25, '⌘', 'mod'], ['option', 1, '⌥', 'mod'], ['←', 1, '', 'arrow'], ['ARROWS', 1], ['→', 1, '', 'arrow']],
+]
 
 const TRAITS = [
   ['Fast', 'Short build cycles — working progress every step.'],
@@ -28,6 +30,29 @@ const TRAITS = [
   ['Reliable', 'Tested on real devices and real conversations.'],
   ['Measured', 'Clear goals and reporting on every app and agent.'],
 ]
+
+function KeyCap({ k, w = 1, sub, extra = '', live, active, pressed, onPick, onDown, onUp }) {
+  const cls = ['key', extra, live && `key--live tone-${live.tone}`, active && 'is-active', pressed && 'is-pressed'].filter(Boolean).join(' ')
+  return (
+    <button
+      type="button"
+      tabIndex={live ? 0 : -1}
+      className={cls}
+      style={{ '--w': w }}
+      onClick={onPick}
+      onPointerDown={onDown}
+      onPointerUp={onUp}
+      onPointerLeave={() => pressed && onUp?.()}
+      aria-label={live ? live.name : undefined}
+    >
+      <span className="key__face">
+        {sub && <span className="key__sub">{sub}</span>}
+        <span className="key__main">{k}</span>
+        {live && <span className="key__label">{live.name}</span>}
+      </span>
+    </button>
+  )
+}
 
 export default function Shortcut() {
   const ref = useRef(null)
@@ -104,31 +129,39 @@ export default function Shortcut() {
 
         <motion.div className="kb-wrap" style={{ rotateX: tilt, y: lift }}>
           <div className="kb">
-            {ROWS.map((row, r) => (
-              <div className="kb__row" key={r}>
-                {row.map(([k, w], i) => {
-                  const live = MAP[k]
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      tabIndex={live ? 0 : -1}
-                      className={`key ${live ? `key--live tone-${live.tone}` : ''} ${active === k ? 'is-active' : ''} ${pressed === k ? 'is-pressed' : ''}`}
-                      style={{ '--w': w }}
-                      onClick={() => pick(k)}
-                      onPointerDown={() => setPressed(k)}
-                      onPointerUp={() => setPressed(null)}
-                      onPointerLeave={() => pressed === k && setPressed(null)}
-                      aria-label={live ? live.name : undefined}
-                    >
-                      <span className="key__cap">{k === 'space' ? '' : k}</span>
-                      {live && <span className="key__label">{live.name}</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            ))}
+            <div className="kb__deck">
+              {ROWS.map((row, r) => (
+                <div className={`kb__row ${r === 0 ? 'kb__row--fn' : ''}`} key={r}>
+                  {row.map(([k, w, sub, extra = ''], i) => {
+                    if (k === 'ARROWS')
+                      return (
+                        <div className="key-stack" key={i} style={{ '--w': w }}>
+                          <KeyCap k="↑" extra="arrow half" />
+                          <KeyCap k="↓" extra="arrow half" />
+                        </div>
+                      )
+                    const live = MAP[k]
+                    return (
+                      <KeyCap
+                        key={i}
+                        k={k}
+                        w={w}
+                        sub={sub}
+                        extra={extra}
+                        live={live}
+                        active={active === k}
+                        pressed={pressed === k}
+                        onPick={() => pick(k)}
+                        onDown={() => setPressed(k)}
+                        onUp={() => setPressed(null)}
+                      />
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
+          <div className="kb-floor" />
         </motion.div>
 
         <div className="shortcut__panel">

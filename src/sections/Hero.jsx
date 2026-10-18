@@ -81,14 +81,12 @@ export default function Hero() {
   const titleO = useTransform(scrollYProgress, [0.18, 0.42], [1, 0])
   const restO = useTransform(scrollYProgress, [0, 0.12], [1, 0])
   const restY = useTransform(scrollYProgress, [0, 0.2], [0, 40])
-  // then the next section slides over: the hero sinks back and dims
-  const sinkS = useTransform(scrollYProgress, [0.4, 1], [1, 0.9])
-  const sinkR = useTransform(scrollYProgress, [0.4, 1], [0, 36])
-  const dim = useTransform(scrollYProgress, [0.4, 1], [0, 0.65])
+  // then the hero eases back and dissolves into the page colour as the next section rises
+  const dim = useTransform(scrollYProgress, [0.35, 0.95], [0, 1])
 
   return (
     <section className="ghero-pin" ref={ref}>
-      <motion.div className="ghero lhero" style={{ scale: sinkS, borderRadius: sinkR }}>
+      <motion.div className="ghero lhero">
         <motion.div className="ghero__field" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.8, ease }}>
           <ArrowField progressRef={progress} theme="dark" variant="lumina" />
         </motion.div>
