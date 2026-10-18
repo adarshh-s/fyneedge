@@ -4,9 +4,9 @@ export const SERVICES = [
     num: '01',
     tag: 'Web Application Development',
     title: 'Web applications built around your business.',
-    short: 'Fast, secure web platforms, portals and dashboards built around how your business actually works.',
+    short: 'Portals, dashboards and SaaS platforms — fast, secure and built around how you work.',
     intro:
-      'From customer portals to internal dashboards, we build web platforms that are fast, secure and easy to use — and that save your team hours every week.',
+      'Customer portals, internal dashboards and SaaS platforms that are fast, secure and save your team hours every week.',
     build: ['Custom web applications and SaaS platforms', 'Customer and partner portals', 'Admin dashboards and internal tools', 'Booking, ordering and payment systems', 'Landing pages and company websites'],
     get: ['Responsive design for every screen size', 'Secure logins, roles and data handling', 'Integrations with your CRM, payments and tools', 'Fast loading and search-friendly code', 'Ongoing support and maintenance'],
     cta: 'Start your web project',
@@ -17,9 +17,9 @@ export const SERVICES = [
     num: '02',
     tag: 'Mobile App Development',
     title: 'Mobile apps your customers will keep.',
-    short: 'Native and cross-platform iOS and Android apps your customers enjoy using — from first sketch to App Store.',
+    short: 'iOS and Android apps your customers enjoy — from first sketch to App Store.',
     intro:
-      'We design and build iOS and Android apps that feel effortless to use — and we handle everything from the first prototype to App Store and Google Play approval.',
+      'iOS and Android apps that feel effortless — we handle everything from prototype to App Store and Google Play.',
     build: ['Native iOS and Android apps', 'Cross-platform apps from one codebase', 'Booking, delivery and marketplace apps', 'Apps with AI, maps, payments and real-time chat'],
     get: ['Clean, intuitive UI and UX design', 'Push notifications and offline support', 'Testing on real devices before launch', 'App Store and Google Play publishing'],
     cta: 'Plan your app',
@@ -30,9 +30,9 @@ export const SERVICES = [
     num: '03',
     tag: 'AI Agent Development',
     title: 'AI agents that work for you, 24/7.',
-    short: 'Voice, chat and workflow agents that answer, qualify, book and follow up for you — around the clock.',
+    short: 'Voice, chat and workflow agents that answer, qualify, book and follow up — 24/7.',
     intro:
-      'We build custom AI agents that talk to your customers, qualify leads, book appointments and handle repetitive work — so your team can focus on what matters.',
+      'Custom AI agents that talk to customers, qualify leads, book appointments and handle repetitive work — so your team doesn\'t have to.',
     kinds: [
       ['AI voice agents', 'Natural-sounding agents that make and take phone calls — lead qualification, appointment reminders, follow-ups and customer support.'],
       ['WhatsApp & chat agents', 'Instant answers on WhatsApp and your website, any time of day, using information you approve.'],
@@ -63,10 +63,8 @@ export const WHY = [
 export const INDUSTRIES = ['Real estate', 'Healthcare & clinics', 'Education', 'Retail & e-commerce', 'Hospitality', 'Professional services', 'Startups', 'Automotive', 'Fitness & wellness', 'Logistics']
 
 export const FAQS = [
-  ['How long does a project take?', "Most websites and AI agents take a few weeks; larger web and mobile apps take a few months. We'll give you a clear timeline after our first call."],
-  ['How much does it cost?', 'Every project is different. After understanding your needs, we send a fixed, transparent quote — no hidden costs.'],
-  ['Can your AI agents speak Arabic and English?', 'Yes — agents can be set up in the languages your customers use, including Arabic and English.'],
-  ['Will the AI agent work with my CRM?', 'In most cases, yes. We connect agents to your CRM, calendar and existing tools so everything stays in sync.'],
-  ['Do you support apps after launch?', 'Yes. We offer support and maintenance plans covering updates, fixes and new features.'],
-  ['Can I try OmniReach AI before buying?', "Book a demo and we'll show you OmniReach AI working with leads like yours."],
+  ['How long does a project take?', 'Websites and AI agents: a few weeks. Larger web and mobile apps: a few months. You get a clear timeline after our first call.'],
+  ['How much does it cost?', 'Every project is different. After one call we send a fixed, transparent quote — no hidden costs.'],
+  ['Will it work with our existing tools?', 'In most cases, yes. We connect to your CRM, calendar, payments and other tools so everything stays in sync.'],
+  ['Do you support projects after launch?', 'Yes. Support plans cover updates, fixes and new features as you grow.'],
 ]

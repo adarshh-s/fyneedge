@@ -9,7 +9,7 @@ export default function ThemeToggle({ className = '' }) {
     toggleTheme({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
   }
   return (
-    <button className={`theme-toggle ${className}`} onClick={onClick} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title="Toggle theme">
+    <button className={className || 'theme-toggle'} onClick={onClick} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title="Toggle theme">
       <motion.svg viewBox="0 0 24 24" width="20" height="20" animate={{ rotate: dark ? 40 : 90 }} transition={{ type: 'spring', stiffness: 200, damping: 18 }}>
         <mask id="moon-mask">
           <rect x="0" y="0" width="24" height="24" fill="white" />

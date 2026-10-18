@@ -4,12 +4,12 @@ import { Btn, Eyebrow, SplitHeading, ease } from '../components/ui.jsx'
 
 // Keys that map to something we offer
 const MAP = {
-  W: { name: 'Web apps', line: 'Portals, dashboards and SaaS platforms built around how your business works.', to: '/services#web', tone: 'sky' },
-  M: { name: 'Mobile apps', line: 'iOS and Android apps your customers keep — from first sketch to App Store.', to: '/services#mobile', tone: 'lime' },
-  A: { name: 'AI agents', line: 'Voice, chat and workflow agents that answer, qualify, book and follow up 24/7.', to: '/services#ai', tone: 'ink' },
-  O: { name: 'OmniReach AI', line: 'Reach every lead on WhatsApp, email and AI voice calls — from one platform.', to: '/products#omnireach', tone: 'wa' },
-  S: { name: 'SEO · AEO · GEO', line: 'Get found on Google, in instant answers and inside AI assistants.', to: '/products#seo', tone: 'sky' },
-  P: { name: 'Social Media AI', line: 'Plan, write, schedule and manage your posts — without the daily grind.', to: '/products#social', tone: 'pink' },
+  W: { name: 'Web apps', line: 'Portals, dashboards and SaaS platforms built around how you work.', to: '/services#web', tone: 'sky' },
+  M: { name: 'Mobile apps', line: 'iOS and Android apps your customers keep using.', to: '/services#mobile', tone: 'lime' },
+  A: { name: 'AI agents', line: 'Agents that answer, qualify, book and follow up — 24/7.', to: '/services#ai', tone: 'ink' },
+  V: { name: 'Voice agents', line: 'Natural phone calls for lead qualification, reminders and support.', to: '/services#ai', tone: 'wa' },
+  C: { name: 'Chat agents', line: 'Instant answers on WhatsApp and your website, any time of day.', to: '/services#ai', tone: 'sky' },
+  F: { name: 'Flow automation', line: 'Forms, CRM and calendar connected — no manual work.', to: '/services#ai', tone: 'pink' },
 }
 const ORDER = Object.keys(MAP)
 
@@ -111,9 +111,9 @@ export default function Shortcut() {
     <section className="shortcut" ref={ref}>
       <div className="container section-head section-head--center">
         <Eyebrow>Your shortcut</Eyebrow>
-        <SplitHeading text="One shortcut to everything your business needs." className="h2" />
+        <SplitHeading text="One team for everything you need to build." className="h2" />
         <p className="lead">
-          Press <kbd className="kbd-inline">W</kbd> <kbd className="kbd-inline">M</kbd> <kbd className="kbd-inline">A</kbd> <kbd className="kbd-inline">O</kbd> <kbd className="kbd-inline">S</kbd> or <kbd className="kbd-inline">P</kbd> on your keyboard — or tap a glowing key.
+          Press <kbd className="kbd-inline">W</kbd> <kbd className="kbd-inline">M</kbd> <kbd className="kbd-inline">A</kbd> <kbd className="kbd-inline">V</kbd> <kbd className="kbd-inline">C</kbd> or <kbd className="kbd-inline">F</kbd> — or tap a glowing key.
         </p>
       </div>
 

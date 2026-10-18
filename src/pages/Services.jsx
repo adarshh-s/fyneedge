@@ -25,7 +25,7 @@ export default function Services() {
   usePageMeta(`Services — Web, Mobile & AI Agents | ${SITE.name}`, 'Custom web apps, iOS & Android apps and AI agents that answer calls and messages, qualify leads and book appointments 24/7.')
   return (
     <>
-      <PageHero eyebrow="Services" title={'Build, launch and grow —\nunder one roof.'} text="Web applications, mobile apps and AI agents. Pick one, or let us combine them into something bigger." />
+      <PageHero eyebrow="Services" title={'Build, launch and grow —\nunder one roof.'} text="Web apps, mobile apps and AI agents — one or all three." />
 
       {SERVICES.map((s, idx) => (
         <section className={`svc svc--${s.theme}`} id={s.id} key={s.id}>

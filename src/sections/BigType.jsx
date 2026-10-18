@@ -8,9 +8,9 @@ const FLY = [
   { card: 1, left: '78%', start: 120, end: -90, rot: 6, depth: 'front', size: 1.1 },
   { card: 2, left: '22%', start: 160, end: -40, rot: 4, depth: 'back', size: 0.85 },
   { card: 4, left: '62%', start: 150, end: -70, rot: -5, depth: 'back', size: 0.9 },
-  { card: 6, left: '40%', start: 210, end: -120, rot: -3, depth: 'front', size: 1.05 },
-  { card: 9, left: '86%', start: 230, end: -30, rot: 9, depth: 'back', size: 0.8 },
-  { card: 10, left: '10%', start: 250, end: -50, rot: 7, depth: 'back', size: 0.85 },
+  { card: 3, left: '40%', start: 210, end: -120, rot: -3, depth: 'front', size: 1.05 },
+  { card: 7, left: '86%', start: 230, end: -30, rot: 9, depth: 'back', size: 0.8 },
+  { card: 8, left: '10%', start: 250, end: -50, rot: 7, depth: 'back', size: 0.85 },
   { card: 11, left: '70%', start: 260, end: -110, rot: -7, depth: 'front', size: 1 },
 ]
 

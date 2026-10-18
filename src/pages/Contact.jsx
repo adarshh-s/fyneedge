@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import PageHero from './PageHero.jsx'
+import FAQ from '../sections/FAQ.jsx'
 import { Btn, Reveal, ease, usePageMeta } from '../components/ui.jsx'
 import { SITE } from '../config.js'
 
-const INTERESTS = ['Web app', 'Mobile app', 'AI agent', 'OmniReach AI', 'SEO/AEO/GEO Agent', 'Social Media AI', 'Other']
+const INTERESTS = ['Web app', 'Mobile app', 'AI agent', 'Not sure yet']
 
 export default function Contact() {
   usePageMeta(`Contact Us | ${SITE.name}`, 'Tell us about your project — we reply within one business day.')
@@ -99,6 +100,7 @@ export default function Contact() {
           </Btn>
         </Reveal>
       </section>
+      <FAQ title="Before you ask." />
     </>
   )
 }

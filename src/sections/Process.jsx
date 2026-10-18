@@ -13,8 +13,8 @@ export default function Process() {
   const head = useRef(null)
   const [pts, setPts] = useState([])
   const [active, setActive] = useState(-1)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.8', 'center 0.85'] })
-  const prog = useSpring(scrollYProgress, { stiffness: 90, damping: 24 })
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  const prog = useSpring(useTransform(scrollYProgress, [0.05, 0.9], [0, 1], { clamp: true }), { stiffness: 70, damping: 22 })
   const clipW = useTransform(prog, [0, 1], [0, 1200])
 
   useEffect(() => {
@@ -39,7 +39,8 @@ export default function Process() {
   })
 
   return (
-    <section className="process container" ref={ref}>
+    <section className="process-pin" ref={ref}>
+      <div className="process container">
       <div className="section-head">
         <Eyebrow>How we work</Eyebrow>
         <SplitHeading text="From idea to impact in four clear steps." className="h2" />
@@ -90,6 +91,7 @@ export default function Process() {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </section>
   )

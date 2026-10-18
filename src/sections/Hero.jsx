@@ -94,7 +94,7 @@ export default function Hero() {
         <div className="ghero__content">
           <motion.div style={{ opacity: restO, y: restY }}>
             <motion.p className="lhero__pill" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
-              <i /> New: OmniReach AI — WhatsApp, email &amp; voice in one
+              <i /> Web · Mobile · AI agents
             </motion.p>
           </motion.div>
           <motion.div className="fly-title" style={{ scale: titleS, opacity: titleO }}>
@@ -107,14 +107,14 @@ export default function Hero() {
           </motion.div>
           <motion.div style={{ opacity: restO, y: restY }}>
             <motion.p className="hero__sub" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.6, ease }}>
-              Web apps, mobile apps and AI agents — designed, built and run by one team, from the first idea to customers answered on WhatsApp, email and the phone.
+              Web apps, mobile apps and AI agents — designed, built and run by one team.
             </motion.p>
             <motion.div className="hero__ctas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.75, ease }}>
               <Btn to="/contact" variant="snow">
-                Start a project
+                Book a free consultation
               </Btn>
-              <Btn to="/products#omnireach" variant="night">
-                Explore OmniReach
+              <Btn to="/services" variant="night">
+                Our services
               </Btn>
             </motion.div>
           </motion.div>

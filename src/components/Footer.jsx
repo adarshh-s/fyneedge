@@ -29,15 +29,8 @@ export default function Footer() {
           <Link to="/services#ai">AI Agents</Link>
         </div>
         <div>
-          <h4>Products</h4>
-          <Link to="/products#omnireach">OmniReach AI</Link>
-          <Link to="/products#seo">SEO · AEO · GEO Agent</Link>
-          <Link to="/products#social">Social Media AI</Link>
-        </div>
-        <div>
           <h4>Company</h4>
           <Link to="/about">About</Link>
-          <Link to="/faq">FAQ</Link>
           <Link to="/contact">Contact</Link>
           <a href={SITE.whatsapp} target="_blank" rel="noreferrer">
             WhatsApp
