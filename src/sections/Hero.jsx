@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import HaloRing, { useRingPointer } from '../components/HaloRing.jsx'
-import { Btn, ease } from '../components/ui.jsx'
+import { ease } from '../components/ui.jsx'
 
 const WORDS = ['Web apps', 'Mobile apps', 'AI agents', 'Automation']
 
@@ -82,14 +82,6 @@ export default function Hero() {
               <motion.p className="rhero__sub" {...rise(0.45)}>
                 Software and AI agents that grow your business — designed, built and run by one team.
               </motion.p>
-              <motion.div className="rhero__ctas" {...rise(0.6)}>
-                <Btn to="/contact" variant="white">
-                  Book a free consultation
-                </Btn>
-                <Btn to="/services" variant="ghostpill">
-                  Our services
-                </Btn>
-              </motion.div>
             </motion.div>
           </div>
 
