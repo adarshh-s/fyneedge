@@ -68,7 +68,7 @@ export default function Services() {
                   </ul>
                 </Reveal>
               </div>
-              <Btn to="/contact" variant={s.theme === 'dark' ? 'lime' : 'dark'} arrow>
+              <Btn to="/contact" variant="white" arrow>
                 {s.cta}
               </Btn>
             </div>

@@ -6,6 +6,33 @@ import { Logo, ease } from './ui.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 import { MOD, openPalette } from './CommandPalette.jsx'
 
+/* ---------- liquid glass: one shared distortion filter + a glint that follows the cursor ---------- */
+function LiquidGlass() {
+  useEffect(() => {
+    // only Chromium can run an SVG filter inside backdrop-filter; other browsers keep plain frosted glass
+    const chromium = navigator.userAgentData?.brands?.some((b) => /Chromium/.test(b.brand))
+    if (chromium) document.documentElement.classList.add('lg-svg')
+    const move = (e) => {
+      const el = e.target instanceof Element ? e.target.closest('.lg') : null
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      el.style.setProperty('--my', `${e.clientY - r.top}px`)
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    return () => window.removeEventListener('pointermove', move)
+  }, [])
+  return (
+    <svg className="lg-defs" aria-hidden="true" focusable="false">
+      <filter id="lg-distort" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3" result="soft" />
+        <feDisplacementMap in="SourceGraphic" in2="soft" scale="30" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  )
+}
+
 export default function Nav() {
   const { scrollY } = useScroll()
   const [scrolled, setScrolled] = useState(false)
@@ -42,20 +69,20 @@ export default function Nav() {
       animate={{ y: hidden ? '-110%' : '0%' }}
       transition={{ duration: 0.5, ease }}
     >
-      <div className="jnav__bar">
+      <div className={`jnav__bar ${scrolled ? 'lg' : ''}`}>
         <Link to="/" className="jnav__logo" aria-label="Home">
           <Logo light />
         </Link>
 
         <div className="jnav__actions">
-          <button className="jbtn jbtn--glass jbtn--icon jnav__search" onClick={openPalette} aria-label="Search">
+          <button className="jbtn jbtn--glass jbtn--icon jnav__search lg" onClick={openPalette} aria-label="Search">
             <svg viewBox="0 0 24 24" width="15" height="15">
               <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2.2" />
               <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
             <span className="jnav__kbd">{MOD} K</span>
           </button>
-          <ThemeToggle className="jbtn jbtn--glass jbtn--square" />
+          <ThemeToggle className="jbtn jbtn--glass jbtn--square lg" />
           <Link to="/contact" className="jbtn jbtn--solid jnav__cta">
             Book a call
           </Link>
@@ -64,6 +91,7 @@ export default function Nav() {
 
     </motion.header>
     <Dock pathname={pathname} />
+    <LiquidGlass />
     </>
   )
 }
@@ -129,7 +157,7 @@ function Dock({ pathname }) {
       <AnimatePresence>
         {menu && (
           <motion.div
-            className="dock-menu"
+            className="dock-menu lg"
             initial={{ opacity: 0, y: 14, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.97 }}
@@ -153,7 +181,7 @@ function Dock({ pathname }) {
         )}
       </AnimatePresence>
 
-      <nav className="dock" aria-label="Main" onMouseLeave={() => setHover(null)}>
+      <nav className="dock lg" aria-label="Main" onMouseLeave={() => setHover(null)}>
         <Link to="/" className="dock__home" aria-label="Home" onMouseEnter={() => setHover('home')}>
           {hl === 'home' && <motion.span layoutId="dock-hl" className="dock__hl" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
           <HomeIcon />
