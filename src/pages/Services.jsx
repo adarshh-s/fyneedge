@@ -3,7 +3,7 @@ import CTA from '../sections/CTA.jsx'
 import Process from '../sections/Process.jsx'
 import { SERVICES } from '../data.js'
 import { AgentMock, AppScreen, BrowserMock, PhoneMock } from '../components/mockups.jsx'
-import { Btn, Eyebrow, Parallax, Reveal, SplitHeading, usePageMeta } from '../components/ui.jsx'
+import { Btn, Eyebrow, Parallax, Reveal, ScrollText, SplitHeading, usePageMeta } from '../components/ui.jsx'
 import { SITE } from '../config.js'
 
 const VISUAL = {
@@ -25,7 +25,7 @@ export default function Services() {
   usePageMeta(`Services — Web, Mobile & AI Agents | ${SITE.name}`, 'Custom web apps, iOS & Android apps and AI agents that answer calls and messages, qualify leads and book appointments 24/7.')
   return (
     <>
-      <PageHero eyebrow="Services" title={'Build, launch and grow —\nunder one roof.'} text="Web apps, mobile apps and AI agents — one or all three." />
+      <PageHero eyebrow="Services" title={'Build, launch and grow —\nunder one *roof*.'} text="Web apps, mobile apps and AI agents — one or all three." />
 
       {SERVICES.map((s, idx) => (
         <section className={`svc svc--${s.theme}`} id={s.id} key={s.id}>
@@ -35,9 +35,7 @@ export default function Services() {
                 Service {s.num} · {s.tag}
               </Eyebrow>
               <SplitHeading text={s.title} className={`h2 ${s.theme === 'dark' ? 'h2--light' : ''}`} />
-              <Reveal as="p" className="lead">
-                {s.intro}
-              </Reveal>
+              <ScrollText className="lead" text={s.intro} />
               {s.kinds && (
                 <div className="svc__kinds">
                   {s.kinds.map(([t, d], i) => (
@@ -80,7 +78,7 @@ export default function Services() {
       ))}
 
       <Process />
-      <CTA title="Not sure which service you need?" text="Tell us the problem you want to solve. We'll recommend the right mix of web, mobile and AI — and be honest if something isn't worth building." />
+      <CTA title="Not sure which service you *need*?" text="Tell us the problem you want to solve. We'll recommend the right mix of web, mobile and AI — and be honest if something isn't worth building." />
     </>
   )
 }

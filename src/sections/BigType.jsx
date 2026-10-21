@@ -50,7 +50,7 @@ export default function BigType() {
         <motion.h2 className="bigtype__text" style={{ scale, opacity: o }}>
           Grow your
           <br />
-          business
+          <em className="serif">business</em>
         </motion.h2>
         {FLY.filter((f) => f.depth === 'front').map((f, i) => (
           <Flyer key={'f' + i} f={f} progress={scrollYProgress} />

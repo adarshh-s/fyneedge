@@ -2,12 +2,12 @@ import { useRef } from 'react'
 import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import HaloRing, { useRingPointer } from '../components/HaloRing.jsx'
 import { SITE } from '../config.js'
-import { Btn } from '../components/ui.jsx'
+import { Accent, Btn } from '../components/ui.jsx'
 
 // Outro — mirrors the hero exit in reverse: the woven ring settles in from large around the headline,
 // which arrives from big and blurred to sharp. Pinned briefly, no hard edges.
 export default function CTA({
-  title = "Have an idea? Let's build it.",
+  title = "Have an idea? Let's build *it*.",
   text = "Tell us what you need — an app, a platform or an AI agent — and we'll show you how we'd build it. Free, no obligation.",
 }) {
   const ref = useRef(null)
@@ -29,7 +29,7 @@ export default function CTA({
         </div>
         <div className="outro__inner">
           <motion.h2 className="outro__title" style={{ scale: titleS, opacity: titleO, filter: titleB }}>
-            {title}
+            <Accent text={title} />
           </motion.h2>
           <motion.div className="outro__rest" style={{ opacity: restO, y: restY }}>
             <p>{text}</p>

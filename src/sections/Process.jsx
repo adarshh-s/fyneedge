@@ -43,7 +43,7 @@ export default function Process() {
       <div className="process container">
       <div className="section-head">
         <Eyebrow>How we work</Eyebrow>
-        <SplitHeading text="From idea to impact in four clear steps." className="h2" />
+        <SplitHeading text="From idea to *impact* in four clear steps." className="h2" />
       </div>
       <div className="growth">
         <svg viewBox="0 0 1200 420" className="growth__svg" aria-hidden="true">

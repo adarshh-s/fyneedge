@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useInView } from 'framer-motion'
 import { SERVICES } from '../data.js'
 import { AgentMock, AppScreen, BrowserMock, PhoneMock } from '../components/mockups.jsx'
 import { useTilt } from '../components/interactions.jsx'
-import { Arrow, Btn, Eyebrow, SplitHeading, ease } from '../components/ui.jsx'
+import { Arrow, Btn, Eyebrow, ScrollText, SplitHeading, ease } from '../components/ui.jsx'
 
 const VISUALS = {
   web: () => <BrowserMock />,
@@ -174,9 +174,9 @@ export default function ServicesStack() {
         <div className="section-head svx__head">
           <div>
             <Eyebrow>What we do</Eyebrow>
-            <SplitHeading text="Everything you need to build, launch and grow — under one roof." className="h2" />
+            <SplitHeading text="Everything you need to build, launch and grow — under one *roof*." className="h2" />
           </div>
-          <p className="lead">Three disciplines, one team. Pick a service to see what we build.</p>
+          <ScrollText className="lead" text="Three disciplines, one team. Pick a service to see what we build." />
         </div>
 
         <motion.div

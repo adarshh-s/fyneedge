@@ -111,7 +111,7 @@ export default function Shortcut() {
     <section className="shortcut" ref={ref}>
       <div className="container section-head section-head--center">
         <Eyebrow>Your shortcut</Eyebrow>
-        <SplitHeading text="One team for everything you need to build." className="h2" />
+        <SplitHeading text="One team for *everything* you need to build." className="h2" />
         <p className="lead">
           Press <kbd className="kbd-inline">W</kbd> <kbd className="kbd-inline">M</kbd> <kbd className="kbd-inline">A</kbd> <kbd className="kbd-inline">V</kbd> <kbd className="kbd-inline">C</kbd> or <kbd className="kbd-inline">F</kbd> — or tap a glowing key.
         </p>

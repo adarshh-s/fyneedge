@@ -6238,3 +6238,306 @@ main:has(> .outro:last-child) + .footer {
 :root[data-theme='dark'] .rhero__scroll {
   bottom: 84px;
 }
+
+/* =========================================================
+   SERIF ACCENT — one italic word per headline (*word* in the copy)
+   ========================================================= */
+.serif {
+  font-family: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  /* the serif sits smaller than Geist at the same size, so it is nudged up to match */
+  font-size: 1.1em;
+  line-height: 0.9;
+  /* italic overhang would be clipped by the reveal masks */
+  padding-right: 0.08em;
+}
+.bigtype__text .serif {
+  letter-spacing: -0.03em;
+}
+
+/* =========================================================
+   SCROLL TEXT — words light up as the statement scrolls past
+   ========================================================= */
+.scroll-text > span {
+  transition: opacity 0.12s linear;
+}
+
+/* =========================================================
+   FILM GRAIN — a very fine static grain so the black reads as material, not a flat fill
+   ========================================================= */
+:root[data-theme='dark'] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.2 0 0 0 -0.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+@media print {
+  body::after {
+    display: none;
+  }
+}
+
+/* =========================================================
+   FOOTER CTA — big copyable email, studio status and clock
+   ========================================================= */
+.footer__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: clamp(60px, 8vw, 110px);
+  margin-bottom: clamp(50px, 6vw, 80px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.footer__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-radius: 99px;
+  font-size: 14px;
+  color: rgba(235, 240, 250, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* live dot with a slow pulse ring */
+.footer__status i {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3ddc84;
+  box-shadow: 0 0 10px rgba(61, 220, 132, 0.8);
+}
+.footer__status i::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid #3ddc84;
+  animation: statusPulse 2s var(--ease) infinite;
+}
+.footer__status i.is-off {
+  background: #ffb347;
+  box-shadow: 0 0 10px rgba(255, 179, 71, 0.7);
+}
+.footer__status i.is-off::after {
+  border-color: #ffb347;
+}
+@keyframes statusPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+.footer__kicker {
+  margin-top: 36px;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  color: rgba(235, 240, 250, 0.6);
+  letter-spacing: -0.02em;
+}
+.footer__actions {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 40px;
+  margin-top: 8px;
+}
+.footer__email {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: #fff;
+}
+.footer__email-addr {
+  font-size: clamp(2.2rem, 7vw, 6.4rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+  font-weight: 500;
+  background: linear-gradient(100deg, #ffffff 0%, #ffffff 40%, #cfe4ff 70%, #8fc2ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 0.08em;
+  /* an underline that draws in on hover */
+  background-image: linear-gradient(100deg, #ffffff 0%, #ffffff 40%, #cfe4ff 70%, #8fc2ff 100%);
+  position: relative;
+}
+.footer__email-addr::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ffffff, #8fc2ff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease);
+}
+.footer__email:hover .footer__email-addr::after,
+.footer__email:focus-visible .footer__email-addr::after {
+  transform: scaleX(1);
+}
+.footer__email-tag {
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(225, 235, 255, 0.55);
+}
+.footer__email-tag > span {
+  display: inline-block;
+}
+.footer__email:focus-visible {
+  outline: 2px solid #8fc2ff;
+  outline-offset: 8px;
+  border-radius: 8px;
+}
+.footer__clock {
+  margin-top: 28px;
+  display: inline-flex;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(225, 235, 255, 0.45);
+}
+.footer__time {
+  color: rgba(235, 240, 250, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+:root:not([data-theme='dark']) .footer__email-addr {
+  background-image: linear-gradient(100deg, #ffffff 0%, #ffffff 40%, #cfe4ff 70%, #8fc2ff 100%);
+}
+@media (max-width: 700px) {
+  .footer__email-addr {
+    font-size: clamp(1.7rem, 9.5vw, 2.6rem);
+  }
+}
+
+/* =========================================================
+   INTRO LOADER — the ring weaves itself in, 0 → 100, then blooms open
+   ========================================================= */
+/* the page under the intro is not locked with overflow:hidden — that makes the window unscrollable,
+   so scroll-linked scenes (the hero) read their progress wrong and hide; Lenis is paused instead */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  color: #fff;
+  cursor: pointer;
+}
+.intro.is-leaving {
+  pointer-events: none;
+}
+.intro__bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.intro__ring {
+  position: absolute;
+  inset: 0;
+}
+.intro__top {
+  position: absolute;
+  top: 28px;
+  left: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(225, 235, 255, 0.55);
+}
+.intro__top .logo {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  font-family: var(--font);
+  text-transform: none;
+  color: #fff;
+}
+.intro__bottom {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 26px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.intro__count {
+  font-family: var(--mono);
+  font-size: clamp(4rem, 12vw, 9rem);
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #ffffff 0%, #cfe4ff 60%, #8fc2ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.intro__skip {
+  padding-bottom: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(225, 235, 255, 0.45);
+}
+@media (max-width: 700px) {
+  .intro__top span {
+    display: none;
+  }
+  .intro__skip {
+    max-width: 14ch;
+    text-align: right;
+  }
+}
+
+/* =========================================================
+   PAGE TRANSITION — the woven ring carries you from page to page
+   ========================================================= */
+.ptrans {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  pointer-events: none;
+}
+.ptrans__bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.ptrans__ring {
+  position: absolute;
+  inset: 0;
+}
+

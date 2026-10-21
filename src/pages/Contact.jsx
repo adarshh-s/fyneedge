@@ -24,7 +24,7 @@ export default function Contact() {
 
   return (
     <>
-      <PageHero eyebrow="Contact" title={"Let's talk about\nyour project."} text="Tell us a little about what you need. We'll get back to you within one business day." />
+      <PageHero eyebrow="Contact" title={"Let's talk about\nyour *project*."} text="Tell us a little about what you need. We'll get back to you within one business day." />
       <section className="contact container">
         <Reveal className="contact__form">
           <AnimatePresence mode="wait">
@@ -100,7 +100,7 @@ export default function Contact() {
           </Btn>
         </Reveal>
       </section>
-      <FAQ title="Before you ask." />
+      <FAQ title="Before you *ask*." />
     </>
   )
 }

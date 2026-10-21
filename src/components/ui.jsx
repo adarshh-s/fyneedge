@@ -1,10 +1,22 @@
-import { Fragment, useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useAnimationFrame, useInView, useMotionValue, useScroll, useSpring, useTransform, useVelocity, animate } from 'framer-motion'
 import { SITE } from '../config.js'
+import { navState } from '../lenis.js'
 import { Scramble, useMagnetic, useTilt } from './interactions.jsx'
 
 export const ease = [0.22, 1, 0.36, 1]
+
+/** false while the first-visit intro still covers the page — entrances wait for it */
+export function useIntroReady() {
+  const [ready, setReady] = useState(navState.introReady)
+  useEffect(() => {
+    navState.listeners.add(setReady)
+    setReady(navState.introReady)
+    return () => navState.listeners.delete(setReady)
+  }, [])
+  return ready
+}
 
 export function usePageMeta(title, description) {
   useEffect(() => {
@@ -94,7 +106,21 @@ export function Reveal({ children, delay = 0, y = 40, className, as = 'div', til
   )
 }
 
-/** Headline whose words slide up from a mask, one after another */
+/** Text where a *word* becomes the serif italic accent */
+export function Accent({ text }) {
+  return text.split(/(\*[^*]+\*)/).map((part, i) =>
+    part.length > 2 && part.startsWith('*') && part.endsWith('*') ? (
+      <em className="serif" key={i}>
+        {part.slice(1, -1)}
+      </em>
+    ) : (
+      part
+    ),
+  )
+}
+const plain = (t) => t.replaceAll('*', '')
+
+/** Headline whose words slide up from a mask, one after another. Wrap a word in *asterisks* for the serif accent. */
 export function SplitHeading({ text, as = 'h2', className, delay = 0, accent }) {
   const Tag = motion[as]
   const words = text.split(' ')
@@ -105,7 +131,7 @@ export function SplitHeading({ text, as = 'h2', className, delay = 0, accent }) 
       whileInView="show"
       viewport={{ once: true, margin: '-10% 0px' }}
       transition={{ staggerChildren: 0.06, delayChildren: delay }}
-      aria-label={text}
+      aria-label={plain(text)}
     >
       {words.map((w, i) => (
         <Fragment key={i}>
@@ -115,7 +141,7 @@ export function SplitHeading({ text, as = 'h2', className, delay = 0, accent }) 
               variants={{ hidden: { y: '110%' }, show: { y: '0%' } }}
               transition={{ duration: 0.9, ease }}
             >
-              {w}
+              {w.includes('*') ? <Accent text={w} /> : w}
             </motion.span>
           </span>
           {i < words.length - 1 && ' '}
@@ -185,5 +211,32 @@ export function Parallax({ children, speed = 80, className }) {
     <motion.div ref={ref} style={{ y }} className={className}>
       {children}
     </motion.div>
+  )
+}
+
+/** Statement that lights up word by word as it scrolls through the viewport (dim → bright, in reading order) */
+export function ScrollText({ text, as = 'p', className }) {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.45'] })
+  const Tag = as
+  const words = text.split(' ')
+  return (
+    <Tag ref={ref} className={`scroll-text ${className || ''}`} aria-label={text}>
+      {words.map((w, i) => (
+        <Fragment key={i}>
+          <LitWord progress={scrollYProgress} range={[i / words.length, (i + 1) / words.length]}>
+            {w}
+          </LitWord>{' '}
+        </Fragment>
+      ))}
+    </Tag>
+  )
+}
+function LitWord({ progress, range, children }) {
+  const opacity = useTransform(progress, range, [0.18, 1])
+  return (
+    <motion.span aria-hidden="true" style={{ opacity }}>
+      {children}
+    </motion.span>
   )
 }

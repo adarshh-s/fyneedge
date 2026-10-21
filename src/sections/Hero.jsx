@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion'
 import HaloRing, { useRingPointer } from '../components/HaloRing.jsx'
-import { ease } from '../components/ui.jsx'
+import { ease, useIntroReady } from '../components/ui.jsx'
+import { navState } from '../lenis.js'
 
 const WORDS = ['Web apps', 'Mobile apps', 'AI agents', 'Automation']
 
 /* types a word, holds it, erases it, moves to the next */
-function useCycle(words) {
+function useCycle(words, start = true) {
   const [text, setText] = useState('')
   useEffect(() => {
+    if (!start) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       let i = 0
       setText(words[0])
@@ -34,13 +36,16 @@ function useCycle(words) {
     }
     t = setTimeout(tick, 700)
     return () => clearTimeout(t)
-  }, [words])
+  }, [words, start])
   return text
 }
 
+// entrances hold at their start state until the intro lifts
+let introReady = true
+const hidden = { opacity: 0, y: 24, filter: 'blur(10px)' }
 const rise = (delay) => ({
-  initial: { opacity: 0, y: 24, filter: 'blur(10px)' },
-  animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
+  initial: hidden,
+  animate: introReady ? { opacity: 1, y: 0, filter: 'blur(0px)' } : hidden,
   transition: { duration: 1.1, ease, delay },
 })
 
@@ -49,7 +54,9 @@ export default function Hero() {
   const progress = useRef(0)
   // pointer + clicks shared with the ring canvas
   const [input, ring] = useRingPointer()
-  const word = useCycle(WORDS)
+  const ready = useIntroReady()
+  introReady = ready
+  const word = useCycle(WORDS, ready)
 
   // pinned for a run of scroll: the ring flattens, grows and you pass through it
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
@@ -64,7 +71,7 @@ export default function Hero() {
     <section className="ghero-pin" ref={ref}>
       <div className="ghero rhero">
         <div className="rhero__stage" data-cursor-idle {...ring}>
-          <motion.div className="rhero__ring" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 2, ease }}>
+          <motion.div className="rhero__ring" initial={navState.arrived ? false : { opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 2, ease }}>
             <HaloRing progress={progress} input={input} />
           </motion.div>
 

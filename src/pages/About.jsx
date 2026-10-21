@@ -1,6 +1,6 @@
 import PageHero from './PageHero.jsx'
 import CTA from '../sections/CTA.jsx'
-import { Eyebrow, Reveal, SplitHeading, usePageMeta } from '../components/ui.jsx'
+import { Eyebrow, Reveal, ScrollText, SplitHeading, usePageMeta } from '../components/ui.jsx'
 import { SITE } from '../config.js'
 
 const VALUES = [
@@ -14,15 +14,11 @@ export default function About() {
   usePageMeta(`About Us | ${SITE.name}`, 'Meet the team building web apps, mobile apps and AI agents for growing businesses.')
   return (
     <>
-      <PageHero eyebrow="About us" title={'We turn ideas into software —\nand software into growth.'} />
+      <PageHero eyebrow="About us" title={'We turn ideas into software —\nand software into *growth*.'} />
 
       <section className="about container">
-        <Reveal as="p" className="about__lead">
-          {SITE.name} builds web applications, mobile apps and AI agents for growing businesses — solid engineering and practical AI, under one roof.
-        </Reveal>
-        <Reveal as="p" className="about__body" delay={0.1}>
-          One team takes your project from first idea to launch, then stays to keep improving it. No hand-offs between agencies, no guesswork about who owns what.
-        </Reveal>
+        <ScrollText className="about__lead" text={`${SITE.name} builds web applications, mobile apps and AI agents for growing businesses — solid engineering and practical AI, under one roof.`} />
+        <ScrollText className="about__body" text="One team takes your project from first idea to launch, then stays to keep improving it. No hand-offs between agencies, no guesswork about who owns what." />
       </section>
 
       <section className="mv container">
@@ -39,7 +35,7 @@ export default function About() {
       <section className="values container">
         <div className="section-head">
           <Eyebrow>Our values</Eyebrow>
-          <SplitHeading text="How we work, every day." className="h2" />
+          <SplitHeading text="How we work, every *day*." className="h2" />
         </div>
         <div className="values__grid">
           {VALUES.map(([t, d], i) => (

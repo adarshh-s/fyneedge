@@ -17,6 +17,8 @@ const smooth = (a, b, x) => {
   return t * t * (3 - 2 * t)
 }
 const lerp = (a, b, t) => a + (b - a) * t
+// one clock for every ring, so two rings drawn with the same geometry match loop for loop
+const T0 = performance.now()
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a))
 
 const LAYOUTS = {
@@ -69,6 +71,21 @@ const LAYOUTS = {
   },
 }
 
+/* the page's own resting ring — its layout and canvas rect — for the intro and page transitions to glide into/out of */
+export function findPageRing() {
+  for (const [sel, layout] of [
+    ['.rhero__ring .ring__canvas:not(.ring__canvas--glow)', 'hero'],
+    ['.phero__ring .ring__canvas:not(.ring__canvas--glow)', 'horizon'],
+  ]) {
+    const el = document.querySelector(sel)
+    if (el) {
+      const r = el.getBoundingClientRect()
+      if (r.width && r.height) return { layout, dx: r.left, dy: r.top, w: r.width, h: r.height }
+    }
+  }
+  return null
+}
+
 /* pointer + click plumbing shared by every ring: spread the handlers on the element that covers the canvas */
 export function useRingPointer() {
   const input = useRef({ over: false, x: 0, y: 0, mx: -9999, my: -9999, clicks: [] })
@@ -98,7 +115,11 @@ export function useRingPointer() {
   return [input, handlers]
 }
 
-export default function HaloRing({ progress, input, layout = 'hero' }) {
+// `reveal` (optional ref, 0 → 1): how much of the ring is woven in — loops appear in order round the ring,
+// the newest one drawing itself segment by segment (used by the intro loader)
+// `morph` (optional ref): { m: 0 → 1, layout, dx, dy, w, h } — glide from this ring's own layout into another
+// ring's resting geometry (another canvas, offset by dx/dy) — how the intro ring settles into the page's ring
+export default function HaloRing({ progress, input, layout = 'hero', reveal, morph }) {
   const ref = useRef(null)
   const glowRef = useRef(null)
 
@@ -148,13 +169,27 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
       if (!onScreen) return
       const p = progress.current
       const k = input.current
-      if (!reduce) st.t += dt
+      if (!reduce) st.t = (now - T0) / 1000
 
       st.hover += ((k.over ? 1 : 0) - st.hover) * 0.06
       st.px += (k.x - st.px) * 0.05
       st.py += (k.y - st.py) * 0.05
 
-      const { S, R, r, cx, cy, rx, ry, tw, fade } = place(p, w, h, st)
+      let { S, R, r, cx, cy, rx, ry, tw, fade } = place(p, w, h, st)
+      const mo = morph?.current
+      if (mo && mo.m > 0) {
+        const B = LAYOUTS[mo.layout](0, mo.w, mo.h, st)
+        const m = mo.m
+        S = lerp(S, B.S, m)
+        R = lerp(R, B.R, m)
+        r = lerp(r, B.r, m)
+        cx = lerp(cx, B.cx + mo.dx, m)
+        cy = lerp(cy, B.cy + mo.dy, m)
+        rx = lerp(rx, B.rx, m)
+        ry = lerp(ry, B.ry, m)
+        tw = lerp(tw, B.tw, m)
+        fade = lerp(fade, B.fade, m)
+      }
       ctx.clearRect(0, 0, w, h)
       gctx.clearRect(0, 0, w, h)
       if (fade <= 0.005) return
@@ -203,7 +238,12 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
       // one wide stroke instead of 84 overlapping ones (the old per-loop glow halved the frame rate)
       const glow = new Path2D()
 
-      for (const L of loops) {
+      const woven = reveal ? Math.max(0, Math.min(1, reveal.current)) * N : N
+      for (let li = 0; li < N; li++) {
+        const L = loops[li]
+        if (li >= Math.ceil(woven)) break
+        // the loop being woven right now draws only part of its length
+        const segs = li < Math.floor(woven) ? SEG : Math.max(2, Math.round((woven - Math.floor(woven)) * SEG))
         // swell toward the pointer
         let target = nearBand * Math.exp(-(wrap(L.th - pa) ** 2) * 7)
         let lim = 0
@@ -218,7 +258,7 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
         const ri = r * (1 + L.boost * 0.42)
         const lean = L.boost * 0.25
 
-        for (let j = 0; j <= SEG; j++) {
+        for (let j = 0; j <= segs; j++) {
           const ph = (j / SEG) * TAU
           const th = L.th + tw * Math.sin(ph + flow) + lean * Math.cos(ph)
           const rr = R + ri * Math.cos(ph)
@@ -237,7 +277,7 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
 
         const path = new Path2D()
         path.moveTo(xs[0], ys[0])
-        for (let j = 1; j <= SEG; j++) path.lineTo(xs[j], ys[j])
+        for (let j = 1; j <= segs; j++) path.lineTo(xs[j], ys[j])
         glow.addPath(path)
 
         ctx.strokeStyle = L.lime > 0.25 ? lime : blue
@@ -267,7 +307,7 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
       ro.disconnect()
       io.disconnect()
     }
-  }, [progress, input, layout])
+  }, [progress, input, layout, reveal, morph])
 
   return (
     <>
