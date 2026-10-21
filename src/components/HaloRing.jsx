@@ -100,15 +100,22 @@ export function useRingPointer() {
 
 export default function HaloRing({ progress, input, layout = 'hero' }) {
   const ref = useRef(null)
+  const glowRef = useRef(null)
 
   useEffect(() => {
     const cv = ref.current
     const ctx = cv.getContext('2d')
+    // the soft glow lives on its own canvas at half resolution (1/4 of the pixels) — soft enough to look
+    // like light, fine enough not to show blocks when upscaled. Stroking it at full size cost ~70 dropped frames per 150 on a full ring.
+    const gcv = glowRef.current
+    const gctx = gcv.getContext('2d')
+    const GLOW = 0.5
     const place = LAYOUTS[layout]
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const small = window.innerWidth < 700
     const N = small ? 52 : 84
-    const SEG = small ? 72 : 96
+    // enough segments that big loops read as true curves, not polygons
+    const SEG = small ? 110 : 168
     const loops = Array.from({ length: N }, (_, i) => ({ th: (i / N) * TAU, boost: 0, lime: 0 }))
     const xs = new Float32Array(SEG + 1)
     const ys = new Float32Array(SEG + 1)
@@ -119,12 +126,19 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
     let onScreen = true
 
     const resize = () => {
+      // full device resolution for crisp lines (the expensive glow lives on its own low-res canvas)
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       w = cv.clientWidth
       h = cv.clientHeight
       cv.width = Math.round(w * dpr)
       cv.height = Math.round(h * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // resizing resets context state; round joins keep tight bends smooth
+      ctx.lineJoin = 'round'
+      ctx.lineCap = 'round'
+      gcv.width = Math.max(1, Math.round(w * GLOW))
+      gcv.height = Math.max(1, Math.round(h * GLOW))
+      gctx.setTransform(GLOW, 0, 0, GLOW, 0, 0)
     }
 
     const frame = (now) => {
@@ -142,6 +156,7 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
 
       const { S, R, r, cx, cy, rx, ry, tw, fade } = place(p, w, h, st)
       ctx.clearRect(0, 0, w, h)
+      gctx.clearRect(0, 0, w, h)
       if (fade <= 0.005) return
       const flow = st.t * 0.45
       const D = S * 1.8
@@ -184,6 +199,10 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
       lime.addColorStop(0.45, '#d7ff3e')
       lime.addColorStop(1, '#5fae1a')
 
+      // soft glow for every loop, gathered into one path and stroked once after the loop —
+      // one wide stroke instead of 84 overlapping ones (the old per-loop glow halved the frame rate)
+      const glow = new Path2D()
+
       for (const L of loops) {
         // swell toward the pointer
         let target = nearBand * Math.exp(-(wrap(L.th - pa) ** 2) * 7)
@@ -219,15 +238,19 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
         const path = new Path2D()
         path.moveTo(xs[0], ys[0])
         for (let j = 1; j <= SEG; j++) path.lineTo(xs[j], ys[j])
+        glow.addPath(path)
 
         ctx.strokeStyle = L.lime > 0.25 ? lime : blue
-        ctx.globalAlpha = (0.09 + L.boost * 0.08) * fade
-        ctx.lineWidth = 7
-        ctx.stroke(path)
         ctx.globalAlpha = (0.85 + L.boost * 0.15) * fade
-        ctx.lineWidth = 1.3 + L.boost * 0.9
+        ctx.lineWidth = 1.15 + L.boost * 0.9
         ctx.stroke(path)
       }
+      // one union stroke doesn't stack where loops cross, so it runs a little stronger than the old per-loop glow
+      gctx.globalCompositeOperation = 'lighter'
+      gctx.strokeStyle = blue
+      gctx.globalAlpha = 0.22 * fade
+      gctx.lineWidth = 10
+      gctx.stroke(glow)
       ctx.globalAlpha = 1
       ctx.globalCompositeOperation = 'source-over'
     }
@@ -246,5 +269,10 @@ export default function HaloRing({ progress, input, layout = 'hero' }) {
     }
   }, [progress, input, layout])
 
-  return <canvas ref={ref} className="ring__canvas" aria-hidden="true" />
+  return (
+    <>
+      <canvas ref={glowRef} className="ring__canvas ring__canvas--glow" aria-hidden="true" />
+      <canvas ref={ref} className="ring__canvas" aria-hidden="true" />
+    </>
+  )
 }
