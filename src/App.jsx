@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { animate, cancelFrame, frame, motion, useMotionValue } from 'framer-motion'
 import Lenis from 'lenis'
 import { lenisRef, navState, setIntroReady } from './lenis.js'
-import HaloRing, { findPageRing } from './components/HaloRing.jsx'
+import { CarriedRing, findPageRing, holdPageRings } from './components/HaloRing.jsx'
 import CommandPalette from './components/CommandPalette.jsx'
 import { Cursor, ScrollProgress, useSpotlight } from './components/interactions.jsx'
 import Nav from './components/Nav.jsx'
@@ -69,9 +69,9 @@ function usePageTransition(location) {
   const [shown, setShown] = useState(location)
   const [active, setActive] = useState(false)
   const bg = useMotionValue(0)
-  const ringO = useMotionValue(1)
   const morph = useRef(null)
   const reveal = useRef(1)
+  const api = useRef(null)
   const run = useRef(null)
   const wait = useRef(0)
 
@@ -92,9 +92,8 @@ function usePageTransition(location) {
     navState.arrived = true
     // the old page's copy eases out with the black
     setIntroReady(false)
-    ringO.set(1)
 
-    // cover: from the current page's ring if it's resting in view, otherwise weave in at the centre
+    // cover: lift out of the current page's ring if it's resting in view, otherwise weave in at the centre
     const from = window.scrollY < 40 ? findPageRing() : null
     morph.current = from ? { ...from, m: 1 } : null
     reveal.current = from ? 1 : 0
@@ -108,9 +107,9 @@ function usePageTransition(location) {
         bg.set(smoothstep(0, 0.6, k))
       },
       onComplete: () => {
+        // swap pages behind the black; the new page's ring mounts held (hidden, resting pose)
         setShown(location)
         toTop()
-        // reveal once the new page — and the first frame of its ring — has painted
         requestAnimationFrame(() =>
           requestAnimationFrame(() => {
             wait.current = setTimeout(() => {
@@ -123,15 +122,17 @@ function usePageTransition(location) {
                 ease: glide,
                 onUpdate: (v) => {
                   if (morph.current) morph.current.m = v
-                  bg.set(1 - smoothstep(0.35, 0.9, v))
-                  ringO.set(1 - smoothstep(0.86, 1, v))
+                  bg.set(1 - smoothstep(0.3, 0.85, v))
                   if (!released && v > 0.42) {
                     released = true
                     setIntroReady(true)
                   }
                 },
                 onComplete: () => {
-                  setActive(false)
+                  // landed: the page ring takes over in the same frame
+                  if (to) api.current?.land()
+                  else holdPageRings(false)
+                  requestAnimationFrame(() => setActive(false))
                   setIntroReady(true)
                   lenisRef.current?.start()
                 },
@@ -145,20 +146,16 @@ function usePageTransition(location) {
   }, [location])
 
   useEffect(() => () => clearTimeout(wait.current), [])
-  return [shown, { active, bg, ringO, morph, reveal }]
+  return [shown, { active, bg, morph, reveal, api }]
 }
 
-const settledRef = { current: 1 }
-const idleInput = { current: { over: false, x: 0, y: 0, mx: -9999, my: -9999, clicks: [] } }
-
-function TransitionRing({ active, bg, ringO, morph, reveal }) {
+function TransitionRing({ active, bg, morph, reveal, api }) {
   if (!active) return null
   return (
     <div className="ptrans" aria-hidden="true">
       <motion.div className="ptrans__bg" style={{ opacity: bg }} />
-      <motion.div className="ptrans__ring" style={{ opacity: ringO }}>
-        <HaloRing layout="center" progress={settledRef} input={idleInput} reveal={reveal} morph={morph} />
-      </motion.div>
+      {/* the old page ring hides the moment the carried ring has drawn over it */}
+      <CarriedRing morph={morph} reveal={reveal} api={api} onFirstDraw={() => holdPageRings(true)} />
     </div>
   )
 }

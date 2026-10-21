@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion'
 import { NAV } from '../config.js'
 import { Logo, ease } from './ui.jsx'
-import ThemeToggle from './ThemeToggle.jsx'
 import { MOD, openPalette } from './CommandPalette.jsx'
 
 /* ---------- liquid glass: one shared distortion filter + a glint that follows the cursor ---------- */
@@ -34,23 +33,12 @@ function LiquidGlass() {
 }
 
 export default function Nav() {
-  const { scrollY } = useScroll()
-  const [scrolled, setScrolled] = useState(false)
-  const [hidden, setHidden] = useState(false)
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
   const ref = useRef(null)
 
-  useMotionValueEvent(scrollY, 'change', (y) => {
-    const prev = scrollY.getPrevious() ?? 0
-    setScrolled(y > 40)
-    if (y > 300 && y > prev + 2) setHidden(true)
-    else if (y < prev - 2) setHidden(false)
-  })
-
   useEffect(() => setOpen(false), [pathname])
   useEffect(() => {
-    if (open) setHidden(false)
     const onDoc = (e) => !ref.current?.contains(e.target) && setOpen(false)
     const onKey = (e) => e.key === 'Escape' && setOpen(false)
     document.addEventListener('pointerdown', onDoc)
@@ -63,13 +51,9 @@ export default function Nav() {
 
   return (
     <>
-    <motion.header
-      ref={ref}
-      className={`jnav ${scrolled ? 'jnav--solid' : ''} ${open ? 'jnav--open' : ''}`}
-      animate={{ y: hidden ? '-110%' : '0%' }}
-      transition={{ duration: 0.5, ease }}
-    >
-      <div className={`jnav__bar ${scrolled ? 'lg' : ''}`}>
+    {/* part of the page: sits over the hero and scrolls away with it (the dock is the always-there navigation) */}
+    <header ref={ref} className={`jnav ${open ? 'jnav--open' : ''}`}>
+      <div className="jnav__bar">
         <Link to="/" className="jnav__logo" aria-label="Home">
           <Logo light />
         </Link>
@@ -82,14 +66,13 @@ export default function Nav() {
             </svg>
             <span className="jnav__kbd">{MOD} K</span>
           </button>
-          <ThemeToggle className="jbtn jbtn--glass jbtn--square lg" />
           <Link to="/contact" className="jbtn jbtn--solid jnav__cta">
             Book a call
           </Link>
         </div>
       </div>
 
-    </motion.header>
+    </header>
     <Dock pathname={pathname} />
     <LiquidGlass />
     </>

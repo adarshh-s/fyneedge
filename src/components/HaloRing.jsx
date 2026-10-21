@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { navState } from '../lenis.js'
 
 /*
   A glowing ring woven from line loops (a twisted torus), drawn on a 2D canvas.
@@ -71,20 +72,44 @@ const LAYOUTS = {
   },
 }
 
-/* the page's own resting ring — its layout and canvas rect — for the intro and page transitions to glide into/out of */
+/* the page's own resting ring, for the intro and page transitions to glide into/out of:
+   its layout, canvas rect, the card it is clipped to (radius + bottom fade) and its pointer lean */
 export function findPageRing() {
   for (const [sel, layout] of [
     ['.rhero__ring .ring__canvas:not(.ring__canvas--glow)', 'hero'],
     ['.phero__ring .ring__canvas:not(.ring__canvas--glow)', 'horizon'],
   ]) {
     const el = document.querySelector(sel)
-    if (el) {
-      const r = el.getBoundingClientRect()
-      if (r.width && r.height) return { layout, dx: r.left, dy: r.top, w: r.width, h: r.height }
+    if (!el) continue
+    const r = el.getBoundingClientRect()
+    if (!r.width || !r.height) continue
+    const stage = el.closest('.rhero__stage, .phero__stage')
+    const cs = stage && getComputedStyle(stage)
+    const masked = cs && cs.maskImage && cs.maskImage !== 'none'
+    const st = el.__ringState
+    return {
+      layout,
+      dx: r.left,
+      dy: r.top,
+      w: r.width,
+      h: r.height,
+      rTop: cs ? Math.max(0, parseFloat(cs.borderTopLeftRadius) - 1) : 0,
+      rBottom: cs ? Math.max(0, parseFloat(cs.borderBottomLeftRadius) - 1) : 0,
+      fadeFrom: masked ? (parseFloat(cs.getPropertyValue('--blend-from')) || 70) / 100 : null,
+      st0: st ? { px: st.px, py: st.py } : null,
     }
   }
   return null
 }
+
+/* page rings hide while a carried ring stands in for them, and stop following the pointer
+   so they rest in exactly the pose the carried ring lands in */
+export function holdPageRings(on) {
+  navState.ringHold = on
+  document.documentElement.classList.toggle('ring-hold', on)
+}
+const NEUTRAL = { over: false, x: 0, y: 0, mx: -9999, my: -9999, clicks: [] }
+const NEUTRAL_REF = { current: NEUTRAL }
 
 /* pointer + click plumbing shared by every ring: spread the handlers on the element that covers the canvas */
 export function useRingPointer() {
@@ -119,9 +144,12 @@ export function useRingPointer() {
 // the newest one drawing itself segment by segment (used by the intro loader)
 // `morph` (optional ref): { m: 0 → 1, layout, dx, dy, w, h } — glide from this ring's own layout into another
 // ring's resting geometry (another canvas, offset by dx/dy) — how the intro ring settles into the page's ring
-export default function HaloRing({ progress, input, layout = 'hero', reveal, morph }) {
+// `carried`: this is the travelling ring (intro / transitions), never held; `onDraw` runs after every drawn frame
+export default function HaloRing({ progress, input, layout = 'hero', reveal, morph, carried, onDraw }) {
   const ref = useRef(null)
   const glowRef = useRef(null)
+  const drawCb = useRef(onDraw)
+  drawCb.current = onDraw
 
   useEffect(() => {
     const cv = ref.current
@@ -141,6 +169,9 @@ export default function HaloRing({ progress, input, layout = 'hero', reveal, mor
     const xs = new Float32Array(SEG + 1)
     const ys = new Float32Array(SEG + 1)
     const st = { t: 0, px: 0, py: 0, hover: 0, last: performance.now(), waves: [] }
+    // a carried ring starts in the lean of the page ring it lifts out of; page rings expose theirs
+    if (carried && morph?.current?.st0) Object.assign(st, morph.current.st0)
+    if (!carried) cv.__ringState = st
     let w = 0
     let h = 0
     let raf = 0
@@ -168,7 +199,7 @@ export default function HaloRing({ progress, input, layout = 'hero', reveal, mor
       st.last = now
       if (!onScreen) return
       const p = progress.current
-      const k = input.current
+      const k = !carried && navState.ringHold ? NEUTRAL : input.current
       if (!reduce) st.t = (now - T0) / 1000
 
       st.hover += ((k.over ? 1 : 0) - st.hover) * 0.06
@@ -293,6 +324,7 @@ export default function HaloRing({ progress, input, layout = 'hero', reveal, mor
       gctx.stroke(glow)
       ctx.globalAlpha = 1
       ctx.globalCompositeOperation = 'source-over'
+      drawCb.current?.()
     }
 
     resize()
@@ -307,6 +339,7 @@ export default function HaloRing({ progress, input, layout = 'hero', reveal, mor
       ro.disconnect()
       io.disconnect()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, input, layout, reveal, morph])
 
   return (
@@ -314,5 +347,80 @@ export default function HaloRing({ progress, input, layout = 'hero', reveal, mor
       <canvas ref={glowRef} className="ring__canvas ring__canvas--glow" aria-hidden="true" />
       <canvas ref={ref} className="ring__canvas" aria-hidden="true" />
     </>
+  )
+}
+
+/*
+  The travelling ring used by the intro and page transitions. Full-screen while it travels; as morph.m → 1 its
+  window narrows to the target page ring's card (rounded corners, bottom fade), so on landing it is pixel-for-pixel
+  what the page ring draws — then `land()` swaps them in the same frame.
+*/
+export function CarriedRing({ morph, reveal, api, onFirstDraw }) {
+  const win = useRef(null)
+  const inner = useRef(null)
+  const drawn = useRef(false)
+  const settled = useRef(1)
+
+  useEffect(() => {
+    let raf
+    const lerp2 = (a, b, t) => a + (b - a) * t
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+      const w = win.current
+      const i = inner.current
+      if (!w || !i) return
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      const mo = morph.current
+      const m = mo ? mo.m : 0
+      const x = mo ? lerp2(0, mo.dx, m) : 0
+      const y = mo ? lerp2(0, mo.dy, m) : 0
+      const ww = mo ? lerp2(vw, mo.w, m) : vw
+      const hh = mo ? lerp2(vh, mo.h, m) : vh
+      w.style.transform = `translate(${x}px, ${y}px)`
+      w.style.width = `${ww}px`
+      w.style.height = `${hh}px`
+      w.style.borderRadius = mo ? `${mo.rTop * m}px ${mo.rTop * m}px ${mo.rBottom * m}px ${mo.rBottom * m}px` : '0'
+      const fade = mo && mo.fadeFrom != null ? lerp2(1, mo.fadeFrom, m) * 100 : 100
+      const mask = `linear-gradient(180deg, #000 0%, #000 ${fade}%, ${fade >= 100 ? '#000' : 'transparent'} 100%)`
+      w.style.webkitMaskImage = mask
+      w.style.maskImage = mask
+      // the canvas stays pinned to the viewport while its window moves
+      i.style.transform = `translate(${-x}px, ${-y}px)`
+      i.style.width = `${vw}px`
+      i.style.height = `${vh}px`
+    }
+    tick()
+    if (api) {
+      api.current = {
+        // swap with the page ring in one frame
+        land: () => {
+          if (win.current) win.current.style.visibility = 'hidden'
+          holdPageRings(false)
+        },
+      }
+    }
+    return () => cancelAnimationFrame(raf)
+  }, [morph, api])
+
+  return (
+    <div className="carry" ref={win}>
+      <div className="carry__inner" ref={inner}>
+        <HaloRing
+          layout="center"
+          progress={settled}
+          input={NEUTRAL_REF}
+          reveal={reveal}
+          morph={morph}
+          carried
+          onDraw={() => {
+            if (!drawn.current) {
+              drawn.current = true
+              onFirstDraw?.()
+            }
+          }}
+        />
+      </div>
+    </div>
   )
 }

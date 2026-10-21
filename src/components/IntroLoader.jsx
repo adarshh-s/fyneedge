@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion'
-import HaloRing, { findPageRing, useRingPointer } from './HaloRing.jsx'
+import { CarriedRing, findPageRing, holdPageRings } from './HaloRing.jsx'
 import { Logo } from './ui.jsx'
 import { lenisRef, setIntroReady } from '../lenis.js'
 
@@ -15,9 +15,8 @@ const glide = [0.65, 0, 0.25, 1]
 
 export default function IntroLoader({ onDone }) {
   const reveal = useRef(0)
-  const settled = useRef(1)
   const morph = useRef(null)
-  const [input, ring] = useRingPointer()
+  const api = useRef(null)
   const [count, setCount] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const [bloom, setBloom] = useState(false)
@@ -27,12 +26,14 @@ export default function IntroLoader({ onDone }) {
   const chromeO = useTransform(m, [0, 0.25], [1, 0])
   const chromeY = useTransform(m, [0, 0.25], [0, 16])
   const bgO = useTransform(m, [0.35, 0.9], [1, 0])
-  const ringO = useTransform(m, [0.86, 1], [1, 0])
   const bloomS = useTransform(m, [0, 1], [1, 2.6])
+  const bloomO = useTransform(m, [0.6, 1], [1, 0])
 
   useEffect(() => {
     document.documentElement.classList.add('is-intro')
     setIntroReady(false)
+    // the page's ring waits hidden, in its resting pose, for the intro ring to land on it
+    holdPageRings(true)
     // Lenis is created by App after this mounts, so pause it on the next tick
     const t = setTimeout(() => lenisRef.current?.stop(), 0)
     run.current = animate(0, 1, {
@@ -55,6 +56,9 @@ export default function IntroLoader({ onDone }) {
     if (done.current) return
     done.current = true
     document.documentElement.classList.remove('is-intro')
+    // landed: the page ring takes over in the same frame
+    if (morph.current) api.current?.land()
+    else holdPageRings(false)
     setIntroReady(true)
     lenisRef.current?.start()
     onDone()
@@ -63,8 +67,6 @@ export default function IntroLoader({ onDone }) {
   // the exit
   useEffect(() => {
     if (!leaving) return
-    // settle the pointer so both rings sit exactly where their layouts put them
-    Object.assign(input.current, { over: false, x: 0, y: 0, mx: -9999, my: -9999 })
     const target = findPageRing()
     morph.current = target ? { ...target, m: 0 } : null
     // with no page ring to settle into, the ring blooms outward instead
@@ -104,10 +106,10 @@ export default function IntroLoader({ onDone }) {
   })
 
   return (
-    <div className={`intro ${leaving ? 'is-leaving' : ''}`} role="status" aria-label="Loading" {...ring} onClick={skip}>
+    <div className={`intro ${leaving ? 'is-leaving' : ''}`} role="status" aria-label="Loading" onClick={skip}>
       <motion.div className="intro__bg" style={{ opacity: bgO }} />
-      <motion.div className="intro__ring" style={bloom ? { opacity: ringO, scale: bloomS } : { opacity: ringO }}>
-        <HaloRing layout="center" progress={settled} input={input} reveal={reveal} morph={morph} />
+      <motion.div className="intro__ring" style={bloom ? { scale: bloomS, opacity: bloomO } : undefined}>
+        <CarriedRing morph={morph} reveal={reveal} api={api} />
       </motion.div>
 
       <motion.div className="intro__top" style={{ opacity: chromeO }}>

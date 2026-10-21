@@ -26,14 +26,28 @@ export function usePageMeta(title, description) {
   }, [title, description])
 }
 
+/* the FyneEdge mark — two interlocking rounded panels with a spark.
+   Redrawn from the logo artwork; swap these paths for the exact export when it arrives. */
+export function BrandMark({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 100 100" aria-hidden="true">
+      <g fill="none" stroke="currentColor" strokeWidth="7.5" strokeLinejoin="round">
+        <path d="M31.0 16.0Q31.0 7.0 39.4 10.3L66.6 21.3Q75.0 24.6 75.0 33.6L75.0 63.6Q75.0 72.6 66.6 69.3L39.4 58.3Q31.0 55.0 31.0 46.0Z" />
+        <path d="M7.0 36.0Q7.0 27.0 15.4 30.3L42.6 41.3Q51.0 44.6 51.0 53.6L51.0 83.6Q51.0 92.6 42.6 89.3L15.4 78.3Q7.0 75.0 7.0 66.0Z" />
+      </g>
+      <path fill="currentColor" d="M86 2 Q86 11 95 11 Q86 11 86 20 Q86 11 77 11 Q86 11 86 2 Z" />
+      <path fill="currentColor" d="M29 74 Q29 64 20 61 Q29 58 29 48 Q31 58 40 61 Q31 64 29 74 Z" />
+    </svg>
+  )
+}
+
 export function Logo({ light }) {
   return (
-    <span className={`logo ${light ? 'logo--light' : ''}`}>
-      <svg viewBox="0 0 40 28" aria-hidden="true">
-        <path d="M2 26 15 2h7L9 26z" fill="currentColor" />
-        <path d="M18 26 28 9l9 17z" fill="var(--lime)" />
-      </svg>
-      {SITE.name}
+    <span className={`logo ${light ? 'logo--light' : ''}`} aria-label={SITE.name}>
+      <BrandMark className="logo__mark" />
+      <span className="logo__word" aria-hidden="true">
+        FYNE EDGE
+      </span>
     </span>
   )
 }

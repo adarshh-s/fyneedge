@@ -24,7 +24,7 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --gutter: clamp(16px, 4vw, 48px);
 
-  /* theme tokens — light */
+  /* base theme tokens (the site always runs with data-theme='dark', which overrides these below) */
   color-scheme: light;
   --bg: #ffffff;
   --fg: #0b0f14;
@@ -1067,9 +1067,6 @@ main {
 }
 .sw--hi {
   color: #7fb4ff;
-}
-:root:not([data-theme='dark']) .sw--hi {
-  color: #1f5ff0;
 }
 @media (max-width: 800px) {
   .statement__grid {
@@ -2712,16 +2709,17 @@ main {
   border-top: 1px solid var(--border);
 }
 .values__item {
-  padding: 28px 24px 28px 0;
+  /* same inset on every card, so the hover border never hugs the text (the first card used to have none on the left) */
+  padding: 28px 24px;
   display: grid;
   gap: 10px;
   align-content: start;
 }
 .values__item + .values__item {
-  padding-left: 24px;
   border-left: 1px solid var(--border);
 }
-.values__item span {
+/* the card number only — the tilt glare is also a span and must keep covering the whole card */
+.values__item span:not(.glare) {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--fg-3);
@@ -4132,9 +4130,6 @@ kbd {
     transform: translate(-420px, 220px) rotate(-28deg);
   }
 }
-[data-theme='light'] .shooting {
-  display: none;
-}
 
 
 /* living headline — letters react to the cursor (--f: 0 → 1 set from JS) */
@@ -4627,23 +4622,7 @@ kbd {
 .key-stack .key {
   width: 100%;
 }
-:root:not([data-theme='dark']) .key.is-active .key__main,
-:root:not([data-theme='dark']) .key.is-active .key__label {
-  color: color-mix(in srgb, var(--tone) 45%, #0b0f14);
-  text-shadow: none;
-  opacity: 1;
-}
-:root:not([data-theme='dark']) .key.is-active .key__face {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tone) 55%, #fff), color-mix(in srgb, var(--tone) 40%, #fff));
-}
 
-/* light mode: dissolve through pale blue rather than grey */
-:root:not([data-theme='dark']) .ghero__dim {
-  background: linear-gradient(180deg, #d6e4ff 0%, #eaf1ff 55%, var(--bg) 100%);
-}
-:root:not([data-theme='dark']) .ghero-pin + .bigtype {
-  background: linear-gradient(180deg, transparent 0, rgba(214, 228, 255, 0.7) 22vh, #eef4ff 40vh, var(--bg) 60vh);
-}
 
 
 /* =========================================================
@@ -4658,14 +4637,6 @@ kbd {
   --cell-fg-2: rgba(214, 232, 255, 0.62);
   --cell-accent: #7fb4ff;
   --dot: 127, 180, 255;
-}
-:root:not([data-theme='dark']) .svx {
-  --cell-bg: linear-gradient(180deg, #f5f8ff 0%, #eaf1ff 100%);
-  --cell-border: rgba(31, 95, 240, 0.12);
-  --cell-fg: #0b1430;
-  --cell-fg-2: #4b5878;
-  --cell-accent: #1f5ff0;
-  --dot: 31, 95, 240;
 }
 /* soft wash so the section melts into its neighbours */
 .svx::before {
@@ -5036,13 +5007,6 @@ kbd {
 .integ__tabs button:not(.is-on):hover {
   color: var(--fg);
 }
-:root:not([data-theme='dark']) .integ__pill {
-  background: #1f5ff0;
-  box-shadow: 0 6px 16px -6px rgba(31, 95, 240, 0.6);
-}
-:root:not([data-theme='dark']) .integ__tabs button.is-on {
-  color: #fff;
-}
 .integ__tabs button span.integ__pill {
   position: absolute;
   inset: 0;
@@ -5063,7 +5027,8 @@ kbd {
    NAV — Jeton-style: wordmark left, compact rounded buttons right
    ========================================================= */
 .jnav {
-  position: fixed;
+  /* in the page flow over the hero — scrolls away rather than following you down */
+  position: absolute;
   z-index: 60;
   top: 0;
   left: 0;
@@ -5076,10 +5041,6 @@ kbd {
   backdrop-filter: blur(18px) saturate(1.5);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   box-shadow: 0 1px 0 rgba(150, 195, 255, 0.1);
-}
-:root:not([data-theme='dark']) .jnav--solid {
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 1px 0 rgba(11, 15, 20, 0.06);
 }
 .jnav__bar {
   max-width: 1360px;
@@ -5097,9 +5058,6 @@ kbd {
 .jnav__logo .logo svg {
   width: 36px;
   height: 26px;
-}
-:root:not([data-theme='dark']) .jnav--solid .logo {
-  color: var(--ink);
 }
 .jnav__actions {
   display: flex;
@@ -5144,16 +5102,6 @@ kbd {
 }
 .jbtn--solid:hover {
   background: #e6f2ff;
-}
-:root:not([data-theme='dark']) .jnav--solid .jbtn--glass {
-  color: var(--ink);
-  background: rgba(11, 15, 20, 0.04);
-  border-color: rgba(11, 15, 20, 0.1);
-}
-:root:not([data-theme='dark']) .jnav--solid .jbtn--solid {
-  color: #fff;
-  background: var(--ink);
-  border-color: var(--ink);
 }
 .jnav__kbd {
   font-family: var(--mono);
@@ -5543,9 +5491,6 @@ main:has(> .outro:last-child) + .footer {
 .outro {
   background: var(--ink);
 }
-:root:not([data-theme='dark']) .outro {
-  background: linear-gradient(180deg, var(--bg) 40%, var(--ink) 100%);
-}
 
 /* =========================================================
    HOME HERO — woven light ring + one big word (always dark)
@@ -5764,29 +5709,10 @@ main:has(> .outro:last-child) + .footer {
   opacity: 0.8;
 }
 
-/* light theme: milky glass, dark text */
-:root:not([data-theme='dark']) .lg {
-  --lg-tint: rgba(255, 255, 255, 0.55);
-  --lg-fg: var(--ink);
-  --lg-rim: rgba(255, 255, 255, 0.95);
-  --lg-rim-2: rgba(255, 255, 255, 0.5);
-  --lg-glint: rgba(255, 255, 255, 0.6);
-  --lg-shadow: 0 12px 34px -12px rgba(15, 30, 70, 0.28), 0 0 0 1px rgba(11, 15, 20, 0.06);
-}
-/* the home hero is always black, so its nav stays dark glass in both themes */
-:root:not([data-theme='dark']) .jnav:not(.jnav--solid) .lg {
-  --lg-tint: rgba(22, 27, 38, 0.42);
-  --lg-fg: #fff;
-  --lg-rim: rgba(255, 255, 255, 0.5);
-  --lg-rim-2: rgba(255, 255, 255, 0.14);
-  --lg-glint: rgba(255, 255, 255, 0.22);
-  --lg-shadow: 0 12px 34px -10px rgba(0, 0, 0, 0.55);
-}
 
 /* ---- top bar: transparent at the top, a floating glass capsule once scrolled ---- */
 .jnav,
-.jnav--solid,
-:root:not([data-theme='dark']) .jnav--solid {
+.jnav--solid {
   background: none;
   box-shadow: none;
   -webkit-backdrop-filter: none;
@@ -5813,12 +5739,6 @@ main:has(> .outro:last-child) + .footer {
 .jbtn.lg:hover {
   --lg-tint: rgba(255, 255, 255, 0.16);
 }
-:root:not([data-theme='dark']) .jnav--solid .jbtn.lg {
-  color: var(--ink);
-}
-:root:not([data-theme='dark']) .jnav--solid .jbtn.lg:hover {
-  --lg-tint: rgba(255, 255, 255, 0.7);
-}
 /* glass buttons sitting inside the glass bar go a touch clearer so they don't double up */
 .jnav__bar.lg .jbtn.lg {
   --lg-tint: rgba(255, 255, 255, 0.05);
@@ -5841,11 +5761,6 @@ main:has(> .outro:last-child) + .footer {
 .jnav__bar.lg .logo {
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
-:root:not([data-theme='dark']) .dock.lg .dock__label,
-:root:not([data-theme='dark']) .dock-menu.lg b,
-:root:not([data-theme='dark']) .jnav--solid .jnav__bar.lg .logo {
-  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.6);
-}
 .dock.lg .dock__home {
   background: none;
 }
@@ -5858,13 +5773,6 @@ main:has(> .outro:last-child) + .footer {
     inset 0 -8px 14px -10px rgba(255, 255, 255, 0.45),
     0 6px 16px -8px rgba(0, 0, 0, 0.5);
 }
-:root:not([data-theme='dark']) .dock.lg .dock__hl {
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow:
-    inset 1px 1px 0 -0.5px #fff,
-    inset 0 -8px 14px -10px rgba(31, 95, 240, 0.25),
-    0 6px 16px -8px rgba(15, 30, 70, 0.3);
-}
 .dock.lg .dock__item:active,
 .dock.lg .dock__home:active {
   transform: scale(0.96);
@@ -5874,9 +5782,6 @@ main:has(> .outro:last-child) + .footer {
 .dock-menu.lg {
   border-radius: 24px;
   --lg-tint: rgba(16, 20, 30, 0.66);
-}
-:root:not([data-theme='dark']) .dock-menu.lg {
-  --lg-tint: rgba(255, 255, 255, 0.6);
 }
 .dock-menu.lg .dock-menu__item:hover,
 .dock-menu.lg .dock-menu__all {
@@ -5888,10 +5793,6 @@ main:has(> .outro:last-child) + .footer {
 }
 .dock-menu.lg small {
   color: color-mix(in srgb, var(--lg-fg) 65%, transparent);
-}
-:root:not([data-theme='dark']) .dock-menu.lg .dock-menu__item:hover,
-:root:not([data-theme='dark']) .dock-menu.lg .dock-menu__all {
-  background: rgba(255, 255, 255, 0.6);
 }
 /* the menu holds reading text, so it gets a heavier frost than the bars */
 .dock-menu.lg::before,
@@ -5958,11 +5859,6 @@ main:has(> .outro:last-child) + .footer {
   height: 48px;
   border-radius: 99px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-}
-/* light theme: a white pill would vanish on white pages, so it inks up outside the black stages */
-:root:not([data-theme='dark']) .btn--white:not(:is(.rhero, .phero, .outro) .btn) {
-  --bg: var(--ink);
-  --fg: #fff;
 }
 
 /* ---------- inner-page hero ---------- */
@@ -6045,8 +5941,7 @@ main:has(> .outro:last-child) + .footer {
 }
 
 /* ---------- closing CTA ---------- */
-.outro,
-:root:not([data-theme='dark']) .outro {
+.outro {
   background: var(--bg);
 }
 .outro__sticky {
@@ -6216,7 +6111,7 @@ main:has(> .outro:last-child) + .footer {
 }
 
 /* hero stages blend into the page: the bottom dissolves instead of ending in a hard rounded edge.
-   Dark theme only — fading a black stage into a white page would leave a grey band, so light mode keeps the card. */
+   */
 :root[data-theme='dark'] .phero {
   padding-bottom: 0;
 }
@@ -6429,9 +6324,6 @@ main:has(> .outro:last-child) + .footer {
   color: rgba(235, 240, 250, 0.85);
   font-variant-numeric: tabular-nums;
 }
-:root:not([data-theme='dark']) .footer__email-addr {
-  background-image: linear-gradient(100deg, #ffffff 0%, #ffffff 40%, #cfe4ff 70%, #8fc2ff 100%);
-}
 @media (max-width: 700px) {
   .footer__email-addr {
     font-size: clamp(1.7rem, 9.5vw, 2.6rem);
@@ -6541,3 +6433,65 @@ main:has(> .outro:last-child) + .footer {
   inset: 0;
 }
 
+
+/* the travelling ring's window: moves and narrows onto the page ring's card as it lands */
+.carry {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+.carry__inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/* page rings stand down while the travelling ring stands in for them */
+html.ring-hold .rhero__ring,
+html.ring-hold .phero__ring {
+  visibility: hidden;
+}
+
+/* =========================================================
+   BRAND LOGO — mark + spaced condensed wordmark
+   ========================================================= */
+.logo {
+  gap: 0.62em;
+  font-size: 18px;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.logo .logo__mark {
+  width: 1.75em;
+  height: 1.75em;
+  flex: none;
+  overflow: visible;
+}
+.logo__word {
+  font-family: 'Barlow Semi Condensed', var(--font);
+  font-weight: 500;
+  letter-spacing: 0.38em;
+  /* the tracking adds trailing space after the last letter — pull it back so the lockup stays balanced */
+  margin-right: -0.38em;
+  white-space: nowrap;
+}
+.jnav__logo .logo,
+.intro__top .logo {
+  font-size: 19px;
+  letter-spacing: 0;
+  gap: 0.62em;
+}
+.jnav__logo .logo svg,
+.intro__top .logo svg {
+  width: 1.75em;
+  height: 1.75em;
+}
+.footer__brand .logo {
+  font-size: 18px;
+}
+@media (max-width: 560px) {
+  .jnav__logo .logo {
+    font-size: 15px;
+  }
+}

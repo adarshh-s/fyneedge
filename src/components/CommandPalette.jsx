@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SITE } from '../config.js'
 import { lenisRef } from '../lenis.js'
-import { getTheme, toggleTheme } from '../theme.js'
 
 export const openPalette = () => window.dispatchEvent(new Event('palette:open'))
 
@@ -23,18 +22,6 @@ function buildCommands(navigate, close) {
     { group: 'Actions', title: 'Book a free consultation', sub: 'Free, no obligation', icon: '→', tone: 'lime', type: 'Command', run: go('/contact') },
     { group: 'Actions', title: 'Chat on WhatsApp', sub: 'Opens WhatsApp', icon: '✆', tone: 'wa', type: 'Command', run: () => window.open(SITE.whatsapp, '_blank') },
     { group: 'Actions', title: 'Copy email address', sub: SITE.email, icon: '@', tone: 'ink', type: 'Command', run: () => navigator.clipboard?.writeText(SITE.email), keepOpen: true, toast: 'Copied!' },
-    {
-      group: 'Actions',
-      title: getTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
-      sub: 'Toggle appearance',
-      icon: '◑',
-      tone: 'ink',
-      type: 'Command',
-      run: () => {
-        close()
-        setTimeout(() => toggleTheme(), 180)
-      },
-    },
   ]
 }
 
